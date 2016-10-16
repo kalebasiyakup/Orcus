@@ -9,7 +9,7 @@ namespace Orcus.Cryptography
     {
         #region Private Variables
 
-        private string initVector; // 16 byte olmalı
+        private string initVector; // 16 byte olmalı 
         private string saltValue; // herhangi bir string değer olabilir
         private string passPhrase;  // herhangi bir string değer olabilir
         private const string hashAlgorithm = "SHA1"; //Değiştirilemez
