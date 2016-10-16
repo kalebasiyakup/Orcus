@@ -27,5 +27,15 @@ namespace Orcus.Manager.Test
             Assert.IsNull(CacheManager.Instance.Get("Deneme"));
             
         }
+
+        [TestMethod]
+        public void HazfizadanGetirBasariliMi2()
+        {
+            Assert.IsTrue(CacheManager.Instance.AddOrUpdate("Deneme", "Aloooo", new TimeSpan(0, 0, 10)));
+            Assert.IsNotNull(CacheManager.Instance.Get("Deneme"));
+            Trace.WriteLine(DateTime.Now.ToString());
+            Assert.IsNull(CacheManager.Instance.Get("Deneme"));
+
+        }
     }
 }
