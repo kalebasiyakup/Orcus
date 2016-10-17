@@ -1,5 +1,5 @@
 ﻿using System.Reflection;
-
+ 
 namespace Orcus.Exception
 {
     //yakalanan exceptionlar handle edilirken çıktı formatını soyutlamak 
