@@ -43,7 +43,7 @@
   <ItemGroup>
     <Compile Include="CacheManager\CacheManager.cs" />
     <Compile Include="CryptographyManager\CryptographyManager.cs" />
-    <Compile Include="ExceptionManager.cs" />
+    <Compile Include="ExceptionManager\ExceptionManager.cs" />
     <Compile Include="LogManagers\LogManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="LogManagers\QueueLogManager.cs" />
