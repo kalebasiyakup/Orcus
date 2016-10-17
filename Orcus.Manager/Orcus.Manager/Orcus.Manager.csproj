@@ -40,10 +40,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CacheManager.cs" />
-    <Compile Include="CryptographyManager.cs" />
-    <Compile Include="LogManager.cs" />
+    <Compile Include="CacheManager\CacheManager.cs" />
+    <Compile Include="CryptographyManager\CryptographyManager.cs" />
+    <Compile Include="LogManagers\LogManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="LogManagers\QueueLogManager.cs" />
+    <Compile Include="LogManagers\SmartLogManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Orcus.Cache\Orcus.Cache\Orcus.Cache.csproj">
@@ -54,7 +56,12 @@
       <Project>{B221C95E-2A88-4C80-9780-85F22F2E1516}</Project>
       <Name>Orcus.Cryptography</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Orcus.Log\Orcus.Log\Orcus.Log.csproj">
+      <Project>{3F672F10-42D7-4AAD-8316-E336E0C4DAAD}</Project>
+      <Name>Orcus.Log</Name>
+    </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -31,6 +31,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -40,7 +41,29 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConfigReader\ConfigurationReader.cs" />
+    <Compile Include="ConfigReader\IConfigReader.cs" />
+    <Compile Include="Factory\LogFormatterFactory.cs" />
+    <Compile Include="Factory\LoggerFactory.cs" />
+    <Compile Include="Formatter\HtmlLogFormatter.cs" />
+    <Compile Include="Loggers\ConsoleLogger.cs" />
+    <Compile Include="Loggers\EmailLogger.cs" />
+    <Compile Include="Loggers\FileLogger.cs" />
+    <Compile Include="Loggers\ILogger.cs" />
+    <Compile Include="Loggers\Logger.cs" />
+    <Compile Include="Loggers\TraceLogger.cs" />
+    <Compile Include="Loggers\YourLoggerAdapter.cs" />
+    <Compile Include="Loggers\YourLoggerClass.cs" />
+    <Compile Include="Log\ILog.cs" />
+    <Compile Include="Formatter\ILogFormatter.cs" />
+    <Compile Include="Log\Log.cs" />
+    <Compile Include="Log\LogPriority.cs" />
+    <Compile Include="Adapter\LogPriorityEnum.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ConfigReader\TestConfigReader.cs" />
+    <Compile Include="Formatter\TextFormatter.cs" />
+    <Compile Include="Adapter\YourLogAdaptor.cs" />
+    <Compile Include="Adapter\YourLogClass.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
