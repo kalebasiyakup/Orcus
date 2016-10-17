@@ -38,7 +38,7 @@ namespace Orcus.Manager
                 }
                 return true;
             }
-            catch (Exception)
+            catch
             {
                 return false;
                 //throw;

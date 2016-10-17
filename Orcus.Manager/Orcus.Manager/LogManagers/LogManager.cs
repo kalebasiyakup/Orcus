@@ -77,7 +77,7 @@ namespace Orcus.Manager
                 logger.WriteLog(formattedLog);
                 return true;
             }
-            catch (Exception)
+            catch
             {
                 return false;
                 //throw;
