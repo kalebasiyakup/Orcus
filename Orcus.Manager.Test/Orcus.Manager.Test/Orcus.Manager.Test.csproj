@@ -36,6 +36,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
   </ItemGroup>
   <Choose>
     <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
@@ -55,10 +56,15 @@
     <Compile Include="ExceptionTest.cs" />
     <Compile Include="LogTest.cs" />
     <Compile Include="CryptographyTest.cs" />
+    <Compile Include="OrcusCoreLoggingTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CacheTest.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Orcus.Core\Orcus.Core\Orcus.Core.csproj">
+      <Project>{1AB6DD3D-BF3E-4348-BDD2-88F342C6F856}</Project>
+      <Name>Orcus.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Orcus.Cryptography\Orcus.Cryptography\Orcus.Cryptography.csproj">
       <Project>{B221C95E-2A88-4C80-9780-85F22F2E1516}</Project>
       <Name>Orcus.Cryptography</Name>
@@ -71,6 +77,9 @@
       <Project>{2F8470D5-D275-4576-A654-46DAD5535DEB}</Project>
       <Name>Orcus.Manager</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
