@@ -2,7 +2,7 @@
 
 namespace Orcus.Core.Logging.Formatter
 {
-    public class HtmlLogFormatter : ILogFormatter
+    public class HtmlFormatter : ILogFormatter
     {
         public string Format(ILog log)
         {

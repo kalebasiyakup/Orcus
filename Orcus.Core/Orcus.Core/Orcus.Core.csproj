@@ -44,10 +44,11 @@
     <Compile Include="Common\Result.cs" />
     <Compile Include="ConfigReader\Readers\ConfigurationReader.cs" />
     <Compile Include="ConfigReader\Interface\IConfigReader.cs" />
+    <Compile Include="Logging\Config\LoggingConfig.cs" />
     <Compile Include="Logging\Enum\LogPriority.cs" />
     <Compile Include="Logging\Factory\LogFormatterFactory.cs" />
     <Compile Include="Logging\Factory\LoggerFactory.cs" />
-    <Compile Include="Logging\Formatter\HtmlLogFormatter.cs" />
+    <Compile Include="Logging\Formatter\HtmlFormatter.cs" />
     <Compile Include="Logging\Formatter\TextFormatter.cs" />
     <Compile Include="Logging\Interface\ILog.cs" />
     <Compile Include="Logging\Interface\ILogFormatter.cs" />
@@ -58,6 +59,7 @@
     <Compile Include="Logging\Log\Log.cs" />
     <Compile Include="Logging\Manager\LoggingManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utility\Utility.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

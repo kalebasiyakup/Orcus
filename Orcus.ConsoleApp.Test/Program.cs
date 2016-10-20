@@ -1,5 +1,8 @@
-﻿using Orcus.Core.ConfigReader.Interface;
-using Orcus.Core.ConfigReader.Readers;
+﻿using Orcus.Core.Logging.Config;
+using Orcus.Core.Logging.Enum;
+using Orcus.Core.Logging.Log;
+using Orcus.Core.Logging.Manager;
+using System;
 
 namespace Orcus.ConsoleApp.Test
 {
@@ -7,12 +10,9 @@ namespace Orcus.ConsoleApp.Test
     {
         static void Main(string[] args)
         {
-            IConfigReader reader = new ConfigurationReader();
-            string logSourceValue = reader.ReadKey("LogSource");
-            string logFormatterValue = reader.ReadKey("LogFormatter");
-
-            //Assert.AreEqual(logSourceValue, "Orcus.Log,Orcus.Log.TraceLogger");
-            //Assert.AreEqual(logFormatterValue, "Orcus.Log,Orcus.Log.HtmlLogFormatter");
+            LoggingManager manager = LoggingManager.CreateInstance(new LoggingConfig());
+            Log myLog = new Log("Deneme mesaj", LogPriority.Normal, DateTime.Now);
+            bool result = manager.WriteLog(myLog);
         }
     }
 }

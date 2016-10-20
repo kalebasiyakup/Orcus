@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Orcus.Core.ConfigReader.Interface;
 using Orcus.Core.ConfigReader.Readers;
+using Orcus.Core.Logging.Config;
 using Orcus.Core.Logging.Manager;
 using System;
 using System.Collections.Generic;
@@ -27,7 +28,7 @@ namespace Orcus.Manager.Test
         [TestMethod]
         public void LoglamaDogruCalisiyorMu()
         {
-            LoggingManager manager = LoggingManager.CreateInstance(new ConfigurationReader("Orcus.Core,Orcus.Core.Logging.Logger.TraceLogger", "Orcus.Core,Orcus.Core.Logging.Formatter.HtmlLogFormatter"));
+            LoggingManager manager = LoggingManager.CreateInstance(new LoggingConfig());
             Orcus.Core.Logging.Log.Log myLog = new Orcus.Core.Logging.Log.Log("Deneme mesaj", Orcus.Core.Logging.Enum.LogPriority.Normal, DateTime.Now);
             bool result = manager.WriteLog(myLog);
             Assert.AreEqual(result, true);
