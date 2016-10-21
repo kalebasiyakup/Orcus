@@ -9,8 +9,8 @@ namespace Orcus.Core.Logging.Config
         private string _LogFormatter;
         public LoggingConfig()
         {
-            this._LogSource = Utility.GetAppSetting<string>("LogSource", "Orcus.Core,Orcus.Core.Logging.Logger.TraceLogger");
-            this._LogFormatter = Utility.GetAppSetting<string>("LogFormatter", "Orcus.Core,Orcus.Core.Logging.Formatter.TextFormatter");
+            this._LogSource = OrcusUtility.GetAppSetting<string>("LogSource", "Orcus.Core,Orcus.Core.Logging.Logger.TraceLogger");
+            this._LogFormatter = OrcusUtility.GetAppSetting<string>("LogFormatter", "Orcus.Core,Orcus.Core.Logging.Formatter.TextFormatter");
         }
 
         public string ReadKey(string name)
