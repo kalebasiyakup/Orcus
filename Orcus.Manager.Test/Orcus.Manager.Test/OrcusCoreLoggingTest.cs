@@ -29,7 +29,7 @@ namespace Orcus.Manager.Test
         public void LoglamaDogruCalisiyorMu()
         {
             LoggingManager manager = LoggingManager.CreateInstance(new LoggingConfig());
-            Orcus.Core.Logging.Log.Log myLog = new Orcus.Core.Logging.Log.Log("Deneme mesaj", Orcus.Core.Logging.Enum.LogPriority.Normal, DateTime.Now);
+            Orcus.Core.Logging.Log.Log myLog = new Orcus.Core.Logging.Log.Log(Orcus.Core.OrcusUtility.GetExceptionFormatToHtml(new Exception("TEST")), Orcus.Core.Logging.Enum.LogPriority.Normal, DateTime.Now);
             bool result = manager.WriteLog(myLog);
             Assert.AreEqual(result, true);
         }

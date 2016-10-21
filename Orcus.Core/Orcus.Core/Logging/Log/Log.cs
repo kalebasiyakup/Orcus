@@ -21,7 +21,7 @@ namespace Orcus.Core.Logging.Log
         {
             LogMessage = message;
         }
-
+        
         public Log(string message, LogPriority priority, DateTime logDate)
         {
             LogMessage = message;

@@ -4,6 +4,10 @@ using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Globalization;
+using System.Linq;
+using System.Net;
+using System.Net.Sockets;
+using System.Security;
 using System.Text;
 using System.Web;
 
@@ -11,6 +15,7 @@ namespace Orcus.Core
 {
     public class OrcusUtility
     {
+        #region GetAppSetting
         public static T GetAppSetting<T>(string key, T defaultValue)
         {
             if (string.IsNullOrEmpty(key)) return defaultValue;
@@ -30,11 +35,13 @@ namespace Orcus.Core
             }
 
             return defaultValue;
-        }
+        } 
+        #endregion
 
+        #region GetExceptionFormatToHtml
         public static string GetExceptionFormatToHtml(Exception ex)
         {
-            StringBuilder stringBuilder  = new StringBuilder(2048);
+            StringBuilder stringBuilder = new StringBuilder(2048);
 
             #region HtmlBase
             stringBuilder.Append("<table border=\"1\" cellpadding=\"1\" cellspacing=\"0\" style=\"text-align:left;width:800px;font-family:Tahoma;font-size: 12px;color:#000000;font-weight:normal;\">");
@@ -60,162 +67,53 @@ namespace Orcus.Core
             #endregion
 
             #region ExceptionData
-            foreach (DictionaryEntry dictionaryEntry in
-                from DictionaryEntry pair in ex.Data
-                where pair.Key.ToString().Contains("SQLCOMMANDERROR")
-                select pair)
+            if (ex?.Data == null)
             {
-                stringBuilder.Append(dictionaryEntry.Value);
+                return stringBuilder.ToString();
             }
-            if (!(
-                from DictionaryEntry pair in ex.Data
-                where !pair.Key.ToString().Contains("SQLCOMMANDERROR")
-                where !pair.Key.ToString().Contains("HelpLink.")
-                select pair).Any<DictionaryEntry>())
+
+            StringBuilder builder = new StringBuilder();
+
+            foreach (DictionaryEntry pair in from DictionaryEntry pair in ex.Data
+                                             where pair.Key.ToString().Contains("SQLCOMMANDERROR")
+                                             select pair)
             {
-                return string.Empty;
+                builder.Append(pair.Value);
             }
-            stringBuilder.Append("<tr>");
-            stringBuilder.Append("<td valign=\"top\"><b><i>Exception Data</i></b></td>");
-            stringBuilder.Append("<td>");
-            stringBuilder.Append("<table border=\"1\" cellpadding=\"1\" cellspacing=\"0\" style=\"text-align:left;width:700px;font-family:Tahoma;font-size: 12px;color:#000000;font-weight:normal;\">");
-            bool flag = false;
-            foreach (DictionaryEntry dictionaryEntry1 in
-                from DictionaryEntry pair in ex.Data
-                where !pair.Key.ToString().Contains("SQLCOMMANDERROR")
-                where !pair.Key.ToString().Contains("HelpLink.")
-                select pair)
+
+            if (!(from DictionaryEntry pair in ex.Data
+                  where !pair.Key.ToString().Contains("SQLCOMMANDERROR")
+                  where !pair.Key.ToString().Contains("HelpLink.")
+                  select pair).Any())
             {
-                stringBuilder.Append(HtmlMessageFormat(dictionaryEntry1.Key.ToString(), dictionaryEntry1.Value.ToString(), flag));
-                flag = !flag;
+                return stringBuilder.ToString();
             }
-            stringBuilder.Append("</table>");
-            stringBuilder.Append("</tr>");
-            stringBuilder.Append("</td>");
+
+            builder.Append("<tr>");
+            builder.Append("<td valign=\"top\"><b><i>Exception Data</i></b></td>");
+            builder.Append("<td>");
+
+            builder.Append("<table border=\"1\" cellpadding=\"1\" cellspacing=\"0\" style=\"text-align:left;width:700px;font-family:Tahoma;font-size: 12px;color:#000000;font-weight:normal;\">");
+
+            bool rowGri = false;
+            foreach (DictionaryEntry pair in from DictionaryEntry pair in ex.Data
+                                             where !pair.Key.ToString().Contains("SQLCOMMANDERROR")
+                                             where !pair.Key.ToString().Contains("HelpLink.")
+                                             select pair)
+            {
+                builder.Append(HtmlMessageFormat(pair.Key.ToString(), pair.Value.ToString(), rowGri));
+                rowGri = !rowGri;
+            }
+
+            builder.Append("</table>");
+            builder.Append("</tr>");
+            builder.Append("</td>");
             #endregion
 
             stringBuilder.Append("</table>");
             return stringBuilder.ToString();
         }
-        
-        public static string GetHttpContextFormatToHtml(HttpContext httpContext)
-        {
-            if (httpContext == null)
-            {
-                return string.Empty;
-            }
 
-            StringBuilder stringBuilder = new StringBuilder(2048);
-            stringBuilder.Append("<tr>");
-            stringBuilder.Append("<td valign=\"top\"><b><i>Browser Detail</i></b></td>");
-            stringBuilder.Append("<td>");
-            stringBuilder.Append("<table border=\"1\" cellpadding=\"1\" cellspacing=\"0\" style=\"text-align:left;width:700px;font-family:Tahoma;font-size: 12px;color:#000000;font-weight:normal;\">");
-            stringBuilder.Append(HtmlMessageFormat("UserHostAddress", Environment.TryGetIpAdress(httpContext), false));
-            stringBuilder.Append(HtmlMessageFormat("ComputerName", Environment.TryGetMachineName(httpContext), true));
-            stringBuilder.Append(HtmlMessageFormat("Browser", httpContext.Request.Browser.Browser, false));
-            stringBuilder.Append(HtmlMessageFormat("Browser.Type", httpContext.Request.Browser.Type, true));
-            stringBuilder.Append(HtmlMessageFormat("Browser.Platform", httpContext.Request.Browser.Platform, false));
-            stringBuilder.Append(HtmlMessageFormat("Browser.Version", httpContext.Request.Browser.Version, true));
-            int majorVersion = httpContext.Request.Browser.MajorVersion;
-            stringBuilder.Append(HtmlMessageFormat("Browser.MajorVersion", majorVersion.ToString(), false));
-            double minorVersion = httpContext.Request.Browser.MinorVersion;
-            stringBuilder.Append(HtmlMessageFormat("Browser.MinorVersion", minorVersion.ToString(CultureInfo.InvariantCulture), true));
-            stringBuilder.Append(HtmlMessageFormat("Browser.ClrVersion", httpContext.Request.Browser.ClrVersion.ToString(), false));
-            stringBuilder.Append(HtmlMessageFormat("BrowserCookies", (httpContext.Request.Browser.Cookies ? "Enabled" : "Disabled"), true));
-            stringBuilder.Append(HtmlMessageFormat("Browser.Frames", (httpContext.Request.Browser.Frames ? "Enabled" : "Disabled"), false));
-            stringBuilder.Append(HtmlMessageFormat("Browser.JavaScript", (httpContext.Request.Browser.JavaScript ? "Enabled" : "Disabled"), true));
-            stringBuilder.Append(HtmlMessageFormat("Browser.IsMobileDevice", (httpContext.Request.Browser.IsMobileDevice ? "True" : "False"), false));
-            stringBuilder.Append("</table>");
-            stringBuilder.Append("</tr>");
-            stringBuilder.Append("</td>");
-            stringBuilder.Append("</table>");
-            return stringBuilder.ToString();
-        }
-
-        public static string GetOperatingSystemFormatToHtml(OperatingSystem operatingSystem)
-        {
-            if (operatingSystem == null)
-            {
-                return string.Empty;
-            }
-
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.Append("<tr>");
-            stringBuilder.Append("<td valign=\"top\"><b><i>Operating System</i></b></td>");
-            stringBuilder.Append("<td>");
-            stringBuilder.Append("<table border=\"1\" cellpadding=\"1\" cellspacing=\"0\" style=\"text-align:left;width:700px;font-family:Tahoma;font-size: 12px;color:#000000;font-weight:normal;\">");
-            stringBuilder.Append(HtmlMessageFormat("OS Version", operatingSystem.Version.ToString(), false));
-            PlatformID platform = operatingSystem.Platform;
-            stringBuilder.Append(HtmlMessageFormat("OS Platform", platform.ToString(), true));
-            stringBuilder.Append(HtmlMessageFormat("OS Service Pack", operatingSystem.ServicePack, false));
-            stringBuilder.Append(HtmlMessageFormat("OS Version String", operatingSystem.VersionString, true));
-            stringBuilder.Append("</table>");
-            stringBuilder.Append("</tr>");
-            stringBuilder.Append("</td>");
-            stringBuilder.Append("</table>");
-            return stringBuilder.ToString();
-        }
-
-        public static string GetSqlCommandFormatToHtml(SqlCommand oSqlCommand)
-        {
-            if (oSqlCommand == null)
-            {
-                return string.Empty;
-            }
-
-            object str;
-
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.Append("<tr>");
-            stringBuilder.Append("<td valign=\"top\"><b><i>CommandType</i></b></td>");
-            CommandType commandType = oSqlCommand.CommandType;
-            stringBuilder.Append(string.Concat("<td>", commandType.ToString(), "</td>"));
-            stringBuilder.Append("</tr>");
-            string connectionString = oSqlCommand.Connection.ConnectionString;
-            if (!string.IsNullOrEmpty(connectionString))
-            {
-                int ınt32 = connectionString.IndexOf(";Password=", StringComparison.Ordinal);
-                if (ınt32 > -1)
-                {
-                    stringBuilder.Append("<tr>");
-                    stringBuilder.Append("<td valign=\"top\"><b><i>ConnectionString</i></b></td>");
-                    stringBuilder.Append(string.Concat("<td>", connectionString.Substring(0, ınt32), "</td>"));
-                    stringBuilder.Append("</tr>");
-                }
-            }
-            stringBuilder.Append("<tr>");
-            stringBuilder.Append("<td valign=\"top\"><b><i>CommandText</i></b></td>");
-            stringBuilder.Append(string.Concat("<td>", oSqlCommand.CommandText, "</td>"));
-            stringBuilder.Append("</tr>");
-            stringBuilder.Append("<tr>");
-            stringBuilder.Append("<td valign=\"top\"><b><i>Parameters</i></b></td>");
-            stringBuilder.Append("<td>");
-            stringBuilder.Append("<table border=\"1\" cellpadding=\"1\" cellspacing=\"0\" style=\"text-align:left;width:700px;font-family:Tahoma;font-size: 12px;color:#000000;font-weight:normal;\">");
-            foreach (SqlParameter parameter in oSqlCommand.Parameters)
-            {
-                StringBuilder stringBuilder1 = stringBuilder;
-                string parameterName = parameter.ParameterName;
-                object value = parameter.Value;
-                if (value != null)
-                {
-                    str = value.ToString();
-                }
-                else
-                {
-                    str = null;
-                }
-                if (str == null)
-                {
-                    str = "null";
-                }
-                stringBuilder1.Append(HtmlMessageFormat(parameterName, (string)str, false));
-            }
-            stringBuilder.Append("</table>");
-            stringBuilder.Append("</tr>");
-            stringBuilder.Append("</td>");
-            return stringBuilder.ToString();
-        }
-        
         private static string HtmlMessageFormat(string a, string b, bool rowGri = false)
         {
             if (!rowGri)
@@ -224,5 +122,215 @@ namespace Orcus.Core
             }
             return string.Format("<tr style=\"background - color: #e9e9e9;\"><td>{0} = {1}</td></tr>", a, b);
         }
+
+        #endregion
+
+        #region GetHttpContextFormatToHtml
+        public static string GetHttpContextFormatToHtml(HttpContext httpContext)
+        {
+            if (httpContext == null)
+            {
+                return string.Empty;
+            }
+
+            StringBuilder builder = new StringBuilder();
+            builder.Append("<tr>");
+            builder.Append("<td valign=\"top\"><b><i>Browser Detail</i></b></td>");
+            builder.Append("<td>");
+
+            builder.Append("<table border=\"1\" cellpadding=\"1\" cellspacing=\"0\" style=\"text-align:left;width:700px;font-family:Tahoma;font-size: 12px;color:#000000;font-weight:normal;\">");
+
+            builder.Append(HtmlMessageFormat("UserHostAddress", TryGetIpAdress(httpContext)));
+            builder.Append(HtmlMessageFormat("ComputerName", TryGetMachineName(httpContext), true));
+            builder.Append(HtmlMessageFormat("Browser", httpContext.Request.Browser.Browser));
+            builder.Append(HtmlMessageFormat("Browser.Type", httpContext.Request.Browser.Type, true));
+            builder.Append(HtmlMessageFormat("Browser.Platform", httpContext.Request.Browser.Platform));
+            builder.Append(HtmlMessageFormat("Browser.Version", httpContext.Request.Browser.Version, true));
+            builder.Append(HtmlMessageFormat("Browser.MajorVersion", httpContext.Request.Browser.MajorVersion.ToString()));
+            builder.Append(HtmlMessageFormat("Browser.MinorVersion", httpContext.Request.Browser.MinorVersion.ToString(CultureInfo.InvariantCulture), true));
+            builder.Append(HtmlMessageFormat("Browser.ClrVersion", httpContext.Request.Browser.ClrVersion.ToString()));
+            builder.Append(HtmlMessageFormat("BrowserCookies", httpContext.Request.Browser.Cookies ? "Enabled" : "Disabled", true));
+            builder.Append(HtmlMessageFormat("Browser.Frames", httpContext.Request.Browser.Frames ? "Enabled" : "Disabled"));
+            builder.Append(HtmlMessageFormat("Browser.JavaScript", httpContext.Request.Browser.JavaScript ? "Enabled" : "Disabled", true));
+            builder.Append(HtmlMessageFormat("Browser.IsMobileDevice", httpContext.Request.Browser.IsMobileDevice ? "True" : "False"));
+
+            builder.Append("</table>");
+            builder.Append("</tr>");
+            builder.Append("</td>");
+
+            return builder.ToString();
+        }
+        #endregion
+
+        #region GetOperatingSystemFormatToHtml
+        public static string GetOperatingSystemFormatToHtml(OperatingSystem operatingSystem)
+        {
+            if (operatingSystem == null)
+            {
+                return string.Empty;
+            }
+
+            StringBuilder builder = new StringBuilder();
+            builder.Append("<tr>");
+            builder.Append("<td valign=\"top\"><b><i>Operating System</i></b></td>");
+            builder.Append("<td>");
+
+            builder.Append("<table border=\"1\" cellpadding=\"1\" cellspacing=\"0\" style=\"text-align:left;width:700px;font-family:Tahoma;font-size: 12px;color:#000000;font-weight:normal;\">");
+            builder.Append(HtmlMessageFormat("OS Version", operatingSystem.Version.ToString()));
+            builder.Append(HtmlMessageFormat("OS Platform", operatingSystem.Platform.ToString(), true));
+            builder.Append(HtmlMessageFormat("OS Service Pack", operatingSystem.ServicePack));
+            builder.Append(HtmlMessageFormat("OS Version String", operatingSystem.VersionString, true));
+
+            builder.Append("</table>");
+            builder.Append("</tr>");
+            builder.Append("</td>");
+
+            return builder.ToString();
+        }
+        #endregion
+
+        #region GetSqlCommandFormatToHtml
+        public static string GetSqlCommandFormatToHtml(SqlCommand oSqlCommand)
+        {
+            if (oSqlCommand == null)
+            {
+                return string.Empty;
+            }
+
+            StringBuilder builder = new StringBuilder();
+
+            builder.Append("<tr>");
+            builder.Append("<td valign=\"top\"><b><i>CommandType</i></b></td>");
+            builder.Append(string.Concat("<td>", oSqlCommand.CommandType.ToString(), "</td>"));
+            builder.Append("</tr>");
+
+            var connStr = oSqlCommand.Connection.ConnectionString;
+            if (!string.IsNullOrEmpty(connStr))
+            {
+                var ind1 = connStr.IndexOf(";Password=", StringComparison.Ordinal);
+
+                if (ind1 > -1)
+                {
+                    builder.Append("<tr>");
+                    builder.Append("<td valign=\"top\"><b><i>ConnectionString</i></b></td>");
+                    builder.Append(string.Concat("<td>", connStr.Substring(0, ind1), "</td>"));
+                    builder.Append("</tr>");
+                }
+            }
+
+            builder.Append("<tr>");
+            builder.Append("<td valign=\"top\"><b><i>CommandText</i></b></td>");
+            builder.Append(string.Concat("<td>", oSqlCommand.CommandText, "</td>"));
+            builder.Append("</tr>");
+
+            if (oSqlCommand.Parameters.Count > 0)
+            {
+                builder.Append("<tr>");
+                builder.Append("<td valign=\"top\"><b><i>Parameters</i></b></td>");
+                builder.Append("<td>");
+
+                builder.Append("<table border=\"1\" cellpadding=\"1\" cellspacing=\"0\" style=\"text-align:left;width:700px;font-family:Tahoma;font-size: 12px;color:#000000;font-weight:normal;\">");
+
+                foreach (SqlParameter parameter in oSqlCommand.Parameters)
+                {
+                    builder.Append(HtmlMessageFormat(parameter.ParameterName, (parameter.Value?.ToString() ?? "null")));
+                }
+
+                builder.Append("</table>");
+                builder.Append("</tr>");
+                builder.Append("</td>");
+            }
+
+            return builder.ToString();
+        } 
+        #endregion
+
+        #region MachineName
+        public static string TryGetMachineName()
+        {
+            return TryGetMachineName(null);
+        }
+        public static string TryGetMachineName(HttpContext context)
+        {
+            return TryGetMachineName(context, null);
+        }
+        public static string TryGetMachineName(HttpContext context, string unknownName)
+        {
+            if (context != null)
+            {
+                try
+                {
+                    var machineName = context.Server.MachineName;
+                    return machineName;
+                }
+                catch (HttpException)
+                {
+                }
+                catch (SecurityException)
+                {
+                }
+            }
+            try
+            {
+                var machineName = System.Environment.MachineName;
+                return machineName;
+            }
+            catch (SecurityException)
+            {
+            }
+            return string.IsNullOrEmpty(unknownName) ? string.Empty : unknownName;
+        }
+        #endregion
+
+        #region UserName
+        public static string TryGetDomainUserName()
+        {
+            var windowsIdentity = System.Security.Principal.WindowsIdentity.GetCurrent();
+            return windowsIdentity != null ? windowsIdentity.Name : string.Empty;
+        }
+        #endregion
+
+        #region IpAdress
+        public static string TryGetIpAdress()
+        {
+            return TryGetIpAdress(null);
+        }
+        public static string TryGetIpAdress(HttpContext context)
+        {
+            return TryGetIpAdress(context, null);
+        }
+        public static string TryGetIpAdress(HttpContext context, string unknownIpAdress)
+        {
+            if (context != null)
+            {
+                try
+                {
+                    var sourceIp = string.IsNullOrEmpty(HttpContext.Current.Request.ServerVariables["HTTP_X_FORWARDED_FOR"])
+                                            ? HttpContext.Current.Request.ServerVariables["REMOTE_ADDR"]
+                                            : HttpContext.Current.Request.ServerVariables["HTTP_X_FORWARDED_FOR"];
+
+                    return sourceIp;
+                }
+                catch (HttpException)
+                {
+                }
+                catch (SecurityException)
+                {
+                }
+            }
+            try
+            {
+                var localIPs = Dns.GetHostAddresses(Dns.GetHostName());
+                foreach (IPAddress addr in localIPs.Where(addr => addr.AddressFamily == AddressFamily.InterNetwork))
+                {
+                    return addr.ToString();
+                }
+            }
+            catch (SecurityException)
+            {
+            }
+            return string.IsNullOrEmpty(unknownIpAdress) ? string.Empty : unknownIpAdress;
+        }
+        #endregion
     }
 }
