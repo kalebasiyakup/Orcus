@@ -10,13 +10,13 @@ namespace Orcus.Core.Logging.Formatter
             StringBuilder stringBuilder = new StringBuilder(2048);
             
             stringBuilder.Append("<table border=\"1\" cellpadding=\"1\" cellspacing=\"0\" style=\"text-align:left;width:800px;font-family:Tahoma;font-size: 12px;color:#000000;font-weight:normal;\">");
-            stringBuilder.Append(Row(log.AplicationName?.ToString(), log.AplicationName));
-            stringBuilder.Append(Row(log.SubAplicationName?.ToString(), log.SubAplicationName));
-            stringBuilder.Append(Row(log.ProjectName?.ToString(), log.ProjectName));
-            stringBuilder.Append(Row(log.Computer?.ToString(), log.Computer));
-            stringBuilder.Append(Row(log.IpAdress?.ToString(), log.IpAdress));
-            stringBuilder.Append(Row(log.UserName?.ToString(), log.UserName));
-            stringBuilder.Append(Row(log.LogMessage?.ToString(), log.LogMessage));
+            stringBuilder.Append(Row("AplicationName", log.AplicationName));
+            stringBuilder.Append(Row("SubAplicationName", log.SubAplicationName));
+            stringBuilder.Append(Row("ProjectName", log.ProjectName));
+            stringBuilder.Append(Row("Computer", log.Computer));
+            stringBuilder.Append(Row("IpAdress", log.IpAdress));
+            stringBuilder.Append(Row("UserName", log.UserName));
+            stringBuilder.Append(Row("LogMessage", log.LogMessage));
             stringBuilder.Append("</table>");
             return stringBuilder.ToString();
         }

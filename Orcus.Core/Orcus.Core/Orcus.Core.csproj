@@ -45,8 +45,8 @@
     <Compile Include="Common\Result.cs" />
     <Compile Include="ConfigReader\Readers\ConfigurationReader.cs" />
     <Compile Include="ConfigReader\Interface\IConfigReader.cs" />
+    <Compile Include="Extension\OrcusExtension.cs" />
     <Compile Include="Logging\Config\LoggingConfig.cs" />
-    <Compile Include="Logging\Enum\LogPriority.cs" />
     <Compile Include="Logging\Enum\LogType.cs" />
     <Compile Include="Logging\Factory\LogFormatterFactory.cs" />
     <Compile Include="Logging\Factory\LoggerFactory.cs" />

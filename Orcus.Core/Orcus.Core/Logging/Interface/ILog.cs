@@ -1,5 +1,4 @@
 ﻿using Orcus.Core.Logging.Enum;
-using System;
 
 namespace Orcus.Core.Logging.Interface
 {
@@ -13,7 +12,5 @@ namespace Orcus.Core.Logging.Interface
         string IpAdress { get; set; }
         string UserName { get; set; }
         LogType LogType { get; set; }
-        LogPriority Priority { get; set; }
-        DateTime LogDate { get; set; }
     }
 }

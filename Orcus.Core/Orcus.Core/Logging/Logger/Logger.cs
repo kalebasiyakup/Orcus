@@ -16,7 +16,6 @@ namespace Orcus.Core.Logging.Logger
                 throw new Exception("logger imp başarısız oldu");
             }
         }
-
         protected abstract void WriteLogImpl(string message);
     }
 }

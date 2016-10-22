@@ -1,6 +1,5 @@
 ﻿using Orcus.Core.Logging.Enum;
 using Orcus.Core.Logging.Interface;
-using System;
 
 namespace Orcus.Core.Logging.Log
 {
@@ -14,27 +13,43 @@ namespace Orcus.Core.Logging.Log
         public string IpAdress { get; set; }
         public string UserName { get; set; }
         public LogType LogType { get; set; }
-        public LogPriority Priority { get; set; }
-        public DateTime LogDate { get; set; }
-
-        public Log(string message)
-        {
-            LogMessage = message;
-        }
         
-        public Log(string message, LogPriority priority, DateTime logDate)
+        public Log(LogType logType, string projectName, string logMessage)
         {
-            LogMessage = message;
-            Priority = priority;
-            LogDate = logDate;
+            LogType = LogType;
+            ProjectName = projectName;
+            LogMessage = logMessage;
         }
 
-        public Log(string message, LogPriority priority, string userName, DateTime logDate)
+        public Log(LogType logType, string aplicationName, string projectName, string logMessage)
         {
-            LogMessage = message;
-            Priority = priority;
+            LogType = logType;
+            AplicationName = aplicationName;
+            ProjectName = projectName;
+            LogMessage = logMessage;
+        }
+
+        public Log(LogType logType, string aplicationName, string projectName, string computer, string ipAdress, string userName, string logMessage)
+        {
+            LogType = logType;
+            AplicationName = aplicationName;
+            ProjectName = projectName;
+            Computer = computer;
+            IpAdress = ipAdress;
             UserName = userName;
-            LogDate = logDate;
+            LogMessage = logMessage;
+        }
+
+        public Log(ILog log)
+        {
+            AplicationName = log.AplicationName;
+            SubAplicationName = log.SubAplicationName;
+            ProjectName = log.ProjectName;
+            LogMessage = log.LogMessage;
+            Computer = log.Computer;
+            IpAdress = log.IpAdress;
+            UserName = log.UserName;
+            LogType = log.LogType;
         }
     }
 }
