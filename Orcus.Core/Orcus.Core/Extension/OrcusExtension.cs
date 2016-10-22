@@ -3,15 +3,17 @@ using System.Collections;
 using System.Data.SqlClient;
 using System.Globalization;
 using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Security;
 using System.Text;
 using System.Web;
 
 namespace Orcus.Core.Extension
 {
     public static class OrcusExtension
+    {
+        
+    }
+
+    public static class OrcusHtmlExtension
     {
         #region GetExceptionFormatToHtml
         public static string GetExceptionFormatToHtml(this Exception ex)
@@ -112,8 +114,8 @@ namespace Orcus.Core.Extension
 
             stringBuilder.Append("<table border=\"1\" cellpadding=\"1\" cellspacing=\"0\" style=\"text-align:left;width:680px;font-family:Tahoma;font-size: 12px;color:#000000;font-weight:normal;\">");
 
-            stringBuilder.Append(HtmlMessageFormatColorRow("UserHostAddress", TryGetIpAdress(httpContext)));
-            stringBuilder.Append(HtmlMessageFormatColorRow("ComputerName", TryGetMachineName(httpContext), true));
+            stringBuilder.Append(HtmlMessageFormatColorRow("UserHostAddress", OrcusUtility.TryGetIpAdress(httpContext)));
+            stringBuilder.Append(HtmlMessageFormatColorRow("ComputerName", OrcusUtility.TryGetMachineName(httpContext), true));
             stringBuilder.Append(HtmlMessageFormatColorRow("Browser", httpContext.Request.Browser.Browser));
             stringBuilder.Append(HtmlMessageFormatColorRow("Browser.Type", httpContext.Request.Browser.Type, true));
             stringBuilder.Append(HtmlMessageFormatColorRow("Browser.Platform", httpContext.Request.Browser.Platform));
@@ -217,92 +219,142 @@ namespace Orcus.Core.Extension
             return stringBuilder.ToString();
         }
         #endregion
+    }
 
-        #region MachineName
-        public static string TryGetMachineName()
+    public static class OrcusTextExtension
+    {
+        #region GetExceptionFormatToText
+        public static string GetExceptionFormatToText(this Exception ex)
         {
-            return TryGetMachineName(null);
+            StringBuilder stringBuilder = new StringBuilder(2048);
+
+            #region TextBase
+            stringBuilder.AppendLine(TextRow("Source", ex.Source));
+            stringBuilder.AppendLine(TextRow("Message", ex.Message));
+            stringBuilder.AppendLine(TextRow("StackTrace", ex.StackTrace));
+            stringBuilder.AppendLine(TextRow("InnerException Message", ex.InnerException.Message));
+            #endregion
+
+            #region ExceptionData
+            if (ex?.Data == null)
+            {
+                return stringBuilder.ToString();
+            }
+
+            foreach (DictionaryEntry pair in from DictionaryEntry pair in ex.Data
+                                             where pair.Key.ToString().Contains("SQLCOMMANDERROR")
+                                             select pair)
+            {
+                stringBuilder.AppendLine(pair.Value.ToString());
+            }
+
+            if (!(from DictionaryEntry pair in ex.Data
+                  where !pair.Key.ToString().Contains("SQLCOMMANDERROR")
+                  where !pair.Key.ToString().Contains("HelpLink.")
+                  select pair).Any())
+            {
+                return stringBuilder.ToString();
+            }
+
+            stringBuilder.AppendLine("Exception Data");
+            
+            foreach (DictionaryEntry pair in from DictionaryEntry pair in ex.Data
+                                             where !pair.Key.ToString().Contains("SQLCOMMANDERROR")
+                                             where !pair.Key.ToString().Contains("HelpLink.")
+                                             select pair)
+            {
+                stringBuilder.AppendLine(string.Concat("\t", TextRow(pair.Key.ToString(), pair.Value.ToString())));
+            }
+            #endregion
+
+            return stringBuilder.ToString();
         }
-        public static string TryGetMachineName(HttpContext context)
+
+        private static string TextRow(string key, string value)
         {
-            return TryGetMachineName(context, null);
-        }
-        public static string TryGetMachineName(HttpContext context, string unknownName)
-        {
-            if (context != null)
-            {
-                try
-                {
-                    var machineName = context.Server.MachineName;
-                    return machineName;
-                }
-                catch (HttpException)
-                {
-                }
-                catch (SecurityException)
-                {
-                }
-            }
-            try
-            {
-                var machineName = System.Environment.MachineName;
-                return machineName;
-            }
-            catch (SecurityException)
-            {
-            }
-            return string.IsNullOrEmpty(unknownName) ? string.Empty : unknownName;
+            return string.IsNullOrEmpty(value) ? string.Empty : string.Concat(key, "\t", ": " , value);
         }
         #endregion
 
-        #region UserName
-        public static string TryGetDomainUserName()
+        #region GetHttpContextFormatToText
+        public static string GetHttpContextFormatToText(this HttpContext httpContext)
         {
-            var windowsIdentity = System.Security.Principal.WindowsIdentity.GetCurrent();
-            return windowsIdentity != null ? windowsIdentity.Name : string.Empty;
+            if (httpContext == null)
+            {
+                return string.Empty;
+            }
+
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.AppendLine("Browser Detail");
+            stringBuilder.AppendLine(TextRow("UserHostAddress", OrcusUtility.TryGetIpAdress(httpContext)));
+            stringBuilder.AppendLine(TextRow("ComputerName", OrcusUtility.TryGetMachineName(httpContext)));
+            stringBuilder.AppendLine(TextRow("Browser", httpContext.Request.Browser.Browser));
+            stringBuilder.AppendLine(TextRow("Browser.Type", httpContext.Request.Browser.Type));
+            stringBuilder.AppendLine(TextRow("Browser.Platform", httpContext.Request.Browser.Platform));
+            stringBuilder.AppendLine(TextRow("Browser.Version", httpContext.Request.Browser.Version));
+            stringBuilder.AppendLine(TextRow("Browser.MajorVersion", httpContext.Request.Browser.MajorVersion.ToString()));
+            stringBuilder.AppendLine(TextRow("Browser.MinorVersion", httpContext.Request.Browser.MinorVersion.ToString(CultureInfo.InvariantCulture)));
+            stringBuilder.AppendLine(TextRow("Browser.ClrVersion", httpContext.Request.Browser.ClrVersion.ToString()));
+            stringBuilder.AppendLine(TextRow("BrowserCookies", httpContext.Request.Browser.Cookies ? "Enabled" : "Disabled"));
+            stringBuilder.AppendLine(TextRow("Browser.Frames", httpContext.Request.Browser.Frames ? "Enabled" : "Disabled"));
+            stringBuilder.AppendLine(TextRow("Browser.JavaScript", httpContext.Request.Browser.JavaScript ? "Enabled" : "Disabled"));
+            stringBuilder.AppendLine(TextRow("Browser.IsMobileDevice", httpContext.Request.Browser.IsMobileDevice ? "True" : "False"));
+            return stringBuilder.ToString();
         }
         #endregion
 
-        #region IpAdress
-        public static string TryGetIpAdress()
+        #region GetOperatingSystemFormatToText
+        public static string GetOperatingSystemFormatToText(this OperatingSystem operatingSystem)
         {
-            return TryGetIpAdress(null);
-        }
-        public static string TryGetIpAdress(HttpContext context)
-        {
-            return TryGetIpAdress(context, null);
-        }
-        public static string TryGetIpAdress(HttpContext context, string unknownIpAdress)
-        {
-            if (context != null)
+            if (operatingSystem == null)
             {
-                try
-                {
-                    var sourceIp = string.IsNullOrEmpty(HttpContext.Current.Request.ServerVariables["HTTP_X_FORWARDED_FOR"])
-                                            ? HttpContext.Current.Request.ServerVariables["REMOTE_ADDR"]
-                                            : HttpContext.Current.Request.ServerVariables["HTTP_X_FORWARDED_FOR"];
+                return string.Empty;
+            }
 
-                    return sourceIp;
-                }
-                catch (HttpException)
-                {
-                }
-                catch (SecurityException)
-                {
-                }
-            }
-            try
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.AppendLine("Operating System");
+            stringBuilder.AppendLine(TextRow("OS Version", operatingSystem.Version.ToString()));
+            stringBuilder.AppendLine(TextRow("OS Platform", operatingSystem.Platform.ToString()));
+            stringBuilder.AppendLine(TextRow("OS Service Pack", operatingSystem.ServicePack));
+            stringBuilder.AppendLine(TextRow("OS Version String", operatingSystem.VersionString));
+            return stringBuilder.ToString();
+        }
+        #endregion
+
+        #region GetSqlCommandFormatToText
+        public static string GetSqlCommandFormatToText(this SqlCommand oSqlCommand)
+        {
+            if (oSqlCommand == null)
             {
-                var localIPs = Dns.GetHostAddresses(Dns.GetHostName());
-                foreach (IPAddress addr in localIPs.Where(addr => addr.AddressFamily == AddressFamily.InterNetwork))
+                return string.Empty;
+            }
+
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.AppendLine(TextRow("CommandType", oSqlCommand.CommandType.ToString()));
+
+            var connStr = oSqlCommand.Connection.ConnectionString;
+            if (!string.IsNullOrEmpty(connStr))
+            {
+                var ind1 = connStr.IndexOf("Password", StringComparison.Ordinal);
+
+                if (ind1 > -1)
                 {
-                    return addr.ToString();
+                    stringBuilder.AppendLine(TextRow("Connection", connStr.Substring(0, ind1)));
                 }
             }
-            catch (SecurityException)
+
+            stringBuilder.AppendLine(TextRow("CommandText", oSqlCommand.CommandText));
+
+            if (oSqlCommand.Parameters.Count > 0)
             {
+                stringBuilder.AppendLine("Parameters");
+
+                foreach (SqlParameter parameter in oSqlCommand.Parameters)
+                {
+                    stringBuilder.AppendLine(string.Concat("\t", TextRow(parameter.ParameterName, (parameter.Value?.ToString() ?? "null"))));
+                }
             }
-            return string.IsNullOrEmpty(unknownIpAdress) ? string.Empty : unknownIpAdress;
+            return stringBuilder.ToString();
         }
         #endregion
     }
