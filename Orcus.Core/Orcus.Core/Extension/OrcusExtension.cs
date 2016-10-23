@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections;
+using System.Data;
 using System.Data.SqlClient;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Web;
 
 namespace Orcus.Core.Extension
 {
     public static class OrcusExtension
     {
-        
     }
 
     public static class OrcusHtmlExtension
@@ -218,6 +219,83 @@ namespace Orcus.Core.Extension
 
             return stringBuilder.ToString();
         }
+        #endregion
+
+        #region HtmlTableToDataTable
+
+        private const RegexOptions ExpressionOptions = RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.IgnoreCase;
+
+        private const string CommentPattern = "<!--(.*?)-->";
+        private const string TablePattern = "<table[^>]*>(.*?)</table>";
+        private const string HeaderPattern = "<th[^>]*>(.*?)</th>";
+        private const string RowPattern = "<tr[^>]*>(.*?)</tr>";
+        private const string CellPattern = "<td[^>]*>(.*?)</td>";
+
+        public static DataTable HtmlTableToDataTable(this string html)
+        {
+            return ParseTable(html);
+        }
+
+        private static DataTable ParseTable(string tableHtml)
+        {
+            string tableHtmlWithoutComments = WithoutComments(tableHtml);
+
+            DataTable dataTable = new DataTable();
+
+            MatchCollection rowMatches = Regex.Matches(tableHtmlWithoutComments, RowPattern, ExpressionOptions);
+
+            dataTable.Columns.AddRange(tableHtmlWithoutComments.Contains("<th") ? ParseColumns(tableHtml) : GenerateColumns(rowMatches));
+
+            ParseRows(rowMatches, dataTable);
+
+            return dataTable;
+        }
+
+        private static string WithoutComments(string html)
+        {
+            return Regex.Replace(html, CommentPattern, string.Empty, ExpressionOptions);
+        }
+
+        private static DataColumn[] ParseColumns(string tableHtml)
+        {
+            MatchCollection headerMatches = Regex.Matches(tableHtml.Replace("<thead>", "").Replace("</thead>", ""), HeaderPattern, ExpressionOptions);
+
+            return (from Match headerMatch in headerMatches
+                    select new DataColumn(headerMatch.Groups[1].ToString())).ToArray();
+        }
+
+        private static DataColumn[] GenerateColumns(MatchCollection rowMatches)
+        {
+            int columnCount = Regex.Matches(rowMatches[0].ToString(), CellPattern, ExpressionOptions).Count;
+
+            return (from index in Enumerable.Range(0, columnCount)
+                    select new DataColumn("Column " + Convert.ToString(index))).ToArray();
+        }
+
+        private static void ParseRows(MatchCollection rowMatches, DataTable dataTable)
+        {
+            foreach (Match rowMatch in rowMatches)
+            {
+                // if the row contains header tags don't use it - it is a header not a row
+                if (!rowMatch.Value.Contains("<th"))
+                {
+                    DataRow dataRow = dataTable.NewRow();
+
+                    MatchCollection cellMatches = Regex.Matches(
+                        rowMatch.Value,
+                        CellPattern,
+                        ExpressionOptions);
+
+                    for (int columnIndex = 0; columnIndex < cellMatches.Count; columnIndex++)
+                    {
+                        dataRow[columnIndex] = cellMatches[columnIndex].Groups[1].ToString();
+                    }
+
+                    dataTable.Rows.Add(dataRow);
+                }
+            }
+        }
+
         #endregion
     }
 
