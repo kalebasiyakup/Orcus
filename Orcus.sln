@@ -3,30 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Orcus.Cryptography", "Orcus.Cryptography", "{B5771497-6240-46D6-AA61-1D9E8FA257A9}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orcus.Cryptography", "Orcus.Cryptography\Orcus.Cryptography\Orcus.Cryptography.csproj", "{B221C95E-2A88-4C80-9780-85F22F2E1516}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Orcus.Cache", "Orcus.Cache", "{2943C785-ECBA-44F5-9E04-B8EEAA421378}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orcus.Cache", "Orcus.Cache\Orcus.Cache\Orcus.Cache.csproj", "{9BE4A094-F250-46E3-AAC4-96F358B175C6}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Orcus.Manager", "Orcus.Manager", "{77E940E2-0800-4496-AA1D-A6884F3E8688}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orcus.Manager", "Orcus.Manager\Orcus.Manager\Orcus.Manager.csproj", "{2F8470D5-D275-4576-A654-46DAD5535DEB}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Orcus.Manager.Test", "Orcus.Manager.Test", "{A3CA7DA6-166D-446A-87F1-62C2F05325FD}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orcus.Manager.Test", "Orcus.Manager.Test\Orcus.Manager.Test\Orcus.Manager.Test.csproj", "{F406C57F-CBF7-44D2-91AC-347145507483}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Orcus.Exception", "Orcus.Exception", "{C40871B4-E315-40AC-B503-297872D0AB74}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orcus.Exception", "Orcus.Exception\Orcus.Exception\Orcus.Exception.csproj", "{BAA75967-D695-4BFD-924E-D01730AB420B}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Orcus.Log", "Orcus.Log", "{153722DD-4851-4CEA-8A73-62D85D1F04CA}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orcus.Log", "Orcus.Log\Orcus.Log\Orcus.Log.csproj", "{3F672F10-42D7-4AAD-8316-E336E0C4DAAD}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orcus.Core", "Orcus.Core\Orcus.Core\Orcus.Core.csproj", "{1AB6DD3D-BF3E-4348-BDD2-88F342C6F856}"
 EndProject
 Global
@@ -35,30 +11,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{B221C95E-2A88-4C80-9780-85F22F2E1516}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B221C95E-2A88-4C80-9780-85F22F2E1516}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B221C95E-2A88-4C80-9780-85F22F2E1516}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B221C95E-2A88-4C80-9780-85F22F2E1516}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9BE4A094-F250-46E3-AAC4-96F358B175C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9BE4A094-F250-46E3-AAC4-96F358B175C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9BE4A094-F250-46E3-AAC4-96F358B175C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9BE4A094-F250-46E3-AAC4-96F358B175C6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2F8470D5-D275-4576-A654-46DAD5535DEB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2F8470D5-D275-4576-A654-46DAD5535DEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2F8470D5-D275-4576-A654-46DAD5535DEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2F8470D5-D275-4576-A654-46DAD5535DEB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F406C57F-CBF7-44D2-91AC-347145507483}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F406C57F-CBF7-44D2-91AC-347145507483}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F406C57F-CBF7-44D2-91AC-347145507483}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F406C57F-CBF7-44D2-91AC-347145507483}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BAA75967-D695-4BFD-924E-D01730AB420B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BAA75967-D695-4BFD-924E-D01730AB420B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BAA75967-D695-4BFD-924E-D01730AB420B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BAA75967-D695-4BFD-924E-D01730AB420B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3F672F10-42D7-4AAD-8316-E336E0C4DAAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3F672F10-42D7-4AAD-8316-E336E0C4DAAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3F672F10-42D7-4AAD-8316-E336E0C4DAAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3F672F10-42D7-4AAD-8316-E336E0C4DAAD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1AB6DD3D-BF3E-4348-BDD2-88F342C6F856}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1AB6DD3D-BF3E-4348-BDD2-88F342C6F856}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1AB6DD3D-BF3E-4348-BDD2-88F342C6F856}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -66,13 +18,5 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{B221C95E-2A88-4C80-9780-85F22F2E1516} = {B5771497-6240-46D6-AA61-1D9E8FA257A9}
-		{9BE4A094-F250-46E3-AAC4-96F358B175C6} = {2943C785-ECBA-44F5-9E04-B8EEAA421378}
-		{2F8470D5-D275-4576-A654-46DAD5535DEB} = {77E940E2-0800-4496-AA1D-A6884F3E8688}
-		{F406C57F-CBF7-44D2-91AC-347145507483} = {A3CA7DA6-166D-446A-87F1-62C2F05325FD}
-		{BAA75967-D695-4BFD-924E-D01730AB420B} = {C40871B4-E315-40AC-B503-297872D0AB74}
-		{3F672F10-42D7-4AAD-8316-E336E0C4DAAD} = {153722DD-4851-4CEA-8A73-62D85D1F04CA}
 	EndGlobalSection
 EndGlobal
