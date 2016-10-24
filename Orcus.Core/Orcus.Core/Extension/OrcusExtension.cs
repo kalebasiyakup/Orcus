@@ -350,7 +350,7 @@ namespace Orcus.Core.Extension
 
         private static string TextRow(string key, string value)
         {
-            return string.IsNullOrEmpty(value) ? string.Empty : string.Concat(key, "\t", ": " , value);
+            return (string.IsNullOrEmpty(value) || value == null) ? string.Empty : string.Concat(key, "\t", ": " , value);
         }
         #endregion
 
