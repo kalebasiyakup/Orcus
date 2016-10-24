@@ -8,7 +8,7 @@ using System.Linq.Expressions;
 
 namespace Orcus.Core.DataAccess.RepositoryPattern
 {
-    internal class EfRepository<TEntity> : IRepository<TEntity>
+    class EfRepository<TEntity> : IRepository<TEntity>
         where TEntity : class
     {
         private readonly DbContext _dataContext;

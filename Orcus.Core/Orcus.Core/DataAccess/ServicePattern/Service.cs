@@ -16,6 +16,7 @@ namespace Orcus.Core.DataAccess.ServicePattern
         protected Service(IRepository<TEntity> repository) { _repository = repository; }
         #endregion Constructor
 
+        #region Methods
         public virtual Result<TEntity> Get(Expression<Func<TEntity, bool>> filter = null)
         {
             Result<TEntity> result = new Result<TEntity>();
@@ -163,6 +164,7 @@ namespace Orcus.Core.DataAccess.ServicePattern
             }
 
             return result;
-        }
+        } 
+        #endregion
     }
 }
