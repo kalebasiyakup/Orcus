@@ -42,6 +42,8 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Caching" />
+    <Reference Include="System.Transactions" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -51,6 +53,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Cache\CacheInMemory\DefaultCacheProvider.cs" />
+    <Compile Include="Cache\CacheKeys\CacheKey.cs" />
+    <Compile Include="Cache\Interface\CacheProvider.cs" />
     <Compile Include="Common\Result.cs" />
     <Compile Include="Common\ResultStatusCode.cs" />
     <Compile Include="ConfigReader\Readers\ConfigurationReader.cs" />
@@ -71,6 +76,7 @@
     <Compile Include="DataAccess\RepositoryPattern\IRepository.cs" />
     <Compile Include="DataAccess\ServicePattern\IService.cs" />
     <Compile Include="DataAccess\ServicePattern\Service.cs" />
+    <Compile Include="DataAccess\SqlDataOperation\SqlDataOperation.cs" />
     <Compile Include="DataAccess\UnitOfWork\IUnitOfWork.cs" />
     <Compile Include="DataAccess\UnitOfWork\UnitOfWork.cs" />
     <Compile Include="Extension\OrcusExtension.cs" />
@@ -95,6 +101,7 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

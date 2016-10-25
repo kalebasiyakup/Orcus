@@ -68,6 +68,7 @@ namespace Orcus.Core.DataAccess.UnitOfWork
         }
         #endregion Constuctor/Dispose
 
+        #region Methods
         public IRepository<TEntity> Repository<TEntity>() where TEntity : class
         {
             if (_repositories == null)
@@ -115,6 +116,7 @@ namespace Orcus.Core.DataAccess.UnitOfWork
         public void RollbackTransaction()
         {
             _transaction.Rollback();
-        }
+        } 
+        #endregion
     }
 }

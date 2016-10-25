@@ -1,6 +1,5 @@
 ﻿using Orcus.Core.DataAccess.UnitOfWork;
 using System;
-using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.Validation;
 using System.Linq;
@@ -8,8 +7,7 @@ using System.Linq.Expressions;
 
 namespace Orcus.Core.DataAccess.RepositoryPattern
 {
-    class EfRepository<TEntity> : IRepository<TEntity>
-        where TEntity : class
+    class EfRepository<TEntity> : IRepository<TEntity> where TEntity : class
     {
         private readonly DbContext _dataContext;
         private readonly IUnitOfWork _unitOfWork;
@@ -125,12 +123,7 @@ namespace Orcus.Core.DataAccess.RepositoryPattern
         {
             return _dbset.SqlQuery(query, parameters).AsQueryable();
         }
-        
-        public virtual List<TEntity> GetMany(Expression<Func<TEntity, bool>> where)
-        {
-            return _dbset.Where(where).ToList();
-        }
-
+       
         public IRepository<T> GetRepository<T>() where T : class
         {
             return _unitOfWork.Repository<T>();

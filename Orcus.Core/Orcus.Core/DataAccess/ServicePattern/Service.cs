@@ -1,5 +1,6 @@
 ﻿using Orcus.Core.Common;
 using Orcus.Core.DataAccess.RepositoryPattern;
+using Orcus.Core.DataAccess.UnitOfWork;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -13,7 +14,10 @@ namespace Orcus.Core.DataAccess.ServicePattern
         #endregion Private Fields
 
         #region Constructor
-        protected Service(IRepository<TEntity> repository) { _repository = repository; }
+        protected Service(IUnitOfWork unitOfWork)
+        {
+            _repository = unitOfWork.Repository<TEntity>();
+        }
         #endregion Constructor
 
         #region Methods

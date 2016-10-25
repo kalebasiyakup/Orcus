@@ -7,6 +7,7 @@ using System.Data.SqlClient;
 
 namespace Orcus.Core.Test
 {
+    [TestClass]
     public class LoggingTest
     {
         [TestMethod]
