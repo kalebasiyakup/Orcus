@@ -650,6 +650,23 @@ namespace Orcus.Core.Extension
             return string.IsNullOrEmpty(input) || input.Trim() == string.Empty;
         }
 
+        public static T ToEnum<T>(this string enumString)
+        {
+            return (T)Enum.Parse(typeof(T), enumString);
+        }
+
+        public static string CleanTurkishCharacter(this string message)
+        {
+            string mesaj = message;
+            char[] oldValue = new char[] { 'ö', 'Ö', 'ü', 'Ü', 'ç', 'Ç', 'İ', 'ı', 'Ğ', 'ğ', 'Ş', 'ş' };
+            char[] newValue = new char[] { 'o', 'O', 'u', 'U', 'c', 'C', 'I', 'i', 'G', 'g', 'S', 's' };
+            for (int i = 0; i < oldValue.Length; i++)
+            {
+                mesaj = mesaj.Replace(oldValue[i], newValue[i]);
+            }
+            return mesaj;
+        }
+
         public static string CompressString(this string text)
         {
             byte[] buffer = Encoding.UTF8.GetBytes(text);
