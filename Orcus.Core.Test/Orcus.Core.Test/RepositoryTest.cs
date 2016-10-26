@@ -1,8 +1,10 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Orcus.Core.DataAccess.RepositoryPattern;
 using Orcus.Core.DataAccess.UnitOfWork;
+using Orcus.Core.Extension;
 using Orcus.Core.Test.Repository;
 using System;
+using System.Data;
 using System.Reflection;
 
 namespace Orcus.Core.Test
@@ -110,6 +112,57 @@ namespace Orcus.Core.Test
                 var customerService = new CustomerService(unitOfWork);
                 var result = customerService.CustomersByCompany("bon");
                 Assert.IsNotNull(result);
+            }
+        }
+
+        [TestMethod]
+        public void Customers_ToDataTable()
+        {
+            var context = new NORTHWNDEntities();
+            using (IUnitOfWork unitOfWork = new UnitOfWork(context))
+            {
+                var customerService = new CustomerService(unitOfWork);
+                var result = customerService.GetList();
+                var retVal = result.ResultObject;
+                
+                DataTable dtResults = new DataTable();
+                dtResults = retVal.ToDataTable();
+
+                Assert.IsNotNull(retVal.IsNullOrEmpty());
+                dtResults.ToCSV(",", true, @"C:\_Projeler.Net","deneme");
+
+                var dtList = dtResults.ToList<Customers>();
+                var str = "Yakup KALEBAŞI";
+                var left = str.Left(7);
+                var right = str.Right(7);
+
+                Assert.IsNotNull(result);
+
+                Assert.IsTrue((string.Empty.IsNullOrEmptyOrWhiteSpace()));
+                Assert.IsTrue(("   ".IsNullOrEmptyOrWhiteSpace()));
+                Assert.IsFalse(("TestValue".IsNullOrEmptyOrWhiteSpace()));
+
+                string sayi = "123";
+                var sayiInt = sayi.ConvertTo<int>();
+                //var sayiDateTime = sayi.To<DateTime>();
+
+                string zipstring = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".CompressString();
+                string unzipstring = zipstring.DecompressString();
+
+                // regular parsing
+                int i = "123".ConvertTo<int>();
+                int? inull = "123".ConvertTo<int?>();
+                DateTime d = "01/12/2008".ConvertTo<DateTime>();
+                DateTime? dn = "01/12/2008".ConvertTo<DateTime?>();
+
+
+                // null values
+                string sample = null;
+                int? k = sample.ConvertTo<int?>(); // returns null
+                int l = sample.ConvertTo<int>();   // returns 0
+                DateTime dd = sample.ConvertTo<DateTime>(); // returns 01/01/0001
+                DateTime? ddn = sample.ConvertTo<DateTime?>(); // returns null
+
             }
         }
 

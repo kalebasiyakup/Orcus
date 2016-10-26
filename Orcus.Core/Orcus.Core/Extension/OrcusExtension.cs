@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Globalization;
+using System.IO;
+using System.IO.Compression;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
@@ -335,7 +339,7 @@ namespace Orcus.Core.Extension
             }
 
             stringBuilder.AppendLine("Exception Data");
-            
+
             foreach (DictionaryEntry pair in from DictionaryEntry pair in ex.Data
                                              where !pair.Key.ToString().Contains("SQLCOMMANDERROR")
                                              where !pair.Key.ToString().Contains("HelpLink.")
@@ -350,7 +354,7 @@ namespace Orcus.Core.Extension
 
         private static string TextRow(string key, string value)
         {
-            return (string.IsNullOrEmpty(value) || value == null) ? string.Empty : string.Concat(key, "\t", ": " , value);
+            return (string.IsNullOrEmpty(value) || value == null) ? string.Empty : string.Concat(key, "\t", ": ", value);
         }
         #endregion
 
@@ -435,5 +439,255 @@ namespace Orcus.Core.Extension
             return stringBuilder.ToString();
         }
         #endregion
+    }
+
+    public static class OrcusDataTable
+    {
+        public static List<T> ToList<T>(this DataTable dt)
+        {
+            List<T> ts;
+            if (dt != null)
+            {
+                PropertyInfo[] properties = typeof(T).GetProperties();
+                Dictionary<string, PropertyInfo> strs = new Dictionary<string, PropertyInfo>();
+                PropertyInfo[] propertyInfoArray = properties;
+                for (int i = 0; i < (int)propertyInfoArray.Length; i++)
+                {
+                    PropertyInfo propertyInfo = propertyInfoArray[i];
+                    if ((dt.Columns[propertyInfo.Name] == null ? false : !strs.Keys.Contains<string>(propertyInfo.Name)))
+                    {
+                        strs.Add(propertyInfo.Name, propertyInfo);
+                    }
+                }
+                List<T> ts1 = new List<T>();
+                foreach (DataRow row in dt.Rows)
+                {
+                    T t = Activator.CreateInstance<T>();
+                    foreach (KeyValuePair<string, PropertyInfo> str in strs)
+                    {
+                        if (!(row[str.Key] is DBNull))
+                        {
+                            str.Value.SetValue(t, row[str.Key]);
+                        }
+                        else
+                        {
+                            str.Value.SetValue(t, null);
+                        }
+                    }
+                    ts1.Add(t);
+                }
+                ts = ts1;
+            }
+            else
+            {
+                ts = null;
+            }
+            return ts;
+        }
+
+        public static void ToCSV(this DataTable table, string delimiter, bool includeHeader, string savePath = @"c:\", string fileName = "export")
+        {
+            StringBuilder result = new StringBuilder();
+
+            if (includeHeader)
+            {
+                foreach (DataColumn column in table.Columns)
+                {
+                    result.Append(column.ColumnName);
+                    result.Append(delimiter);
+                }
+                result.Remove(--result.Length, 0);
+                result.Append(Environment.NewLine);
+            }
+
+            foreach (DataRow row in table.Rows)
+            {
+                foreach (object item in row.ItemArray)
+                {
+                    if (item is System.DBNull)
+                        result.Append(delimiter);
+                    else
+                    {
+                        string itemAsString = item.ToString();
+                        itemAsString = itemAsString.Replace("\"", "\"\"");
+                        itemAsString = "\"" + itemAsString + "\"";
+                        result.Append(itemAsString + delimiter);
+                    }
+                }
+
+                result.Remove(--result.Length, 0);
+
+                result.Append(Environment.NewLine);
+            }
+
+            using (StreamWriter writer = new StreamWriter(string.Concat(savePath, savePath.Right(1) == @"\" ? "" : @"\", fileName, ".csv"), true))
+            {
+                writer.Write(result.ToString());
+            }
+        }
+    }
+
+    public static class OrcusIEnumerable
+    {
+        public static DataTable ToDataTable<T>(this IEnumerable<T> varlist)
+        {
+            DataTable dtReturn = new DataTable();
+
+            PropertyInfo[] oProps = null;
+
+            if (varlist == null) return dtReturn;
+
+            foreach (T rec in varlist)
+            {
+                if (oProps == null)
+                {
+                    oProps = ((Type)rec.GetType()).GetProperties();
+                    foreach (PropertyInfo pi in oProps)
+                    {
+                        Type colType = pi.PropertyType;
+
+                        if ((colType.IsGenericType) && (colType.GetGenericTypeDefinition() == typeof(Nullable<>)))
+                        {
+                            colType = colType.GetGenericArguments()[0];
+                        }
+
+                        dtReturn.Columns.Add(new DataColumn(pi.Name, colType));
+                    }
+                }
+
+                DataRow dr = dtReturn.NewRow();
+
+                foreach (PropertyInfo pi in oProps)
+                {
+                    dr[pi.Name] = pi.GetValue(rec, null) == null ? DBNull.Value : pi.GetValue
+                    (rec, null);
+                }
+
+                dtReturn.Rows.Add(dr);
+            }
+            return dtReturn;
+        }
+
+        public static bool IsNullOrEmpty<T>(this IEnumerable<T> collection)
+        {
+            return collection == null || collection.Count() == 0;
+        }
+    }
+
+    public static class OrcusConvert
+    {
+        public static T ConvertTo<T>(this IConvertible value)
+        {
+            try
+            {
+                Type t = typeof(T);
+                Type u = Nullable.GetUnderlyingType(t);
+
+                if (u != null)
+                {
+                    if (value == null || value.Equals(""))
+                        return default(T);
+
+                    return (T)Convert.ChangeType(value, u);
+                }
+                else
+                {
+                    if (value == null || value.Equals(""))
+                        return default(T);
+
+                    return (T)Convert.ChangeType(value, t);
+                }
+            }
+            catch
+            {
+                return default(T);
+            }
+        }
+
+        public static T ConvertTo<T>(this IConvertible value, IConvertible ifError)
+        {
+            try
+            {
+                Type t = typeof(T);
+                Type u = Nullable.GetUnderlyingType(t);
+
+                if (u != null)
+                {
+                    if (value == null || value.Equals(""))
+                        return (T)ifError;
+
+                    return (T)Convert.ChangeType(value, u);
+                }
+                else
+                {
+                    if (value == null || value.Equals(""))
+                        return (T)(ifError.ConvertTo<T>());
+
+                    return (T)Convert.ChangeType(value, t);
+                }
+            }
+            catch
+            {
+                return (T)ifError;
+            }
+        }
+    }
+
+    public static class OrcusString
+    {
+        public static string Right(this string value, int length)
+        {
+            return value != null && value.Length > length ? value.Substring(value.Length - length) : value;
+        }
+
+        public static string Left(this string value, int length)
+        {
+            return value != null && value.Length > length ? value.Substring(0, length) : value;
+        }
+        
+        public static bool IsNullOrEmptyOrWhiteSpace(this string input)
+        {
+            return string.IsNullOrEmpty(input) || input.Trim() == string.Empty;
+        }
+
+        public static string CompressString(this string text)
+        {
+            byte[] buffer = Encoding.UTF8.GetBytes(text);
+            var memoryStream = new MemoryStream();
+            using (var gZipStream = new GZipStream(memoryStream, CompressionMode.Compress, true))
+            {
+                gZipStream.Write(buffer, 0, buffer.Length);
+            }
+
+            memoryStream.Position = 0;
+
+            var compressedData = new byte[memoryStream.Length];
+            memoryStream.Read(compressedData, 0, compressedData.Length);
+
+            var gZipBuffer = new byte[compressedData.Length + 4];
+            Buffer.BlockCopy(compressedData, 0, gZipBuffer, 4, compressedData.Length);
+            Buffer.BlockCopy(BitConverter.GetBytes(buffer.Length), 0, gZipBuffer, 0, 4);
+            return Convert.ToBase64String(gZipBuffer);
+        }
+
+        public static string DecompressString(this string compressedText)
+        {
+            byte[] gZipBuffer = Convert.FromBase64String(compressedText);
+            using (var memoryStream = new MemoryStream())
+            {
+                int dataLength = BitConverter.ToInt32(gZipBuffer, 0);
+                memoryStream.Write(gZipBuffer, 4, gZipBuffer.Length - 4);
+
+                var buffer = new byte[dataLength];
+
+                memoryStream.Position = 0;
+                using (var gZipStream = new GZipStream(memoryStream, CompressionMode.Decompress))
+                {
+                    gZipStream.Read(buffer, 0, buffer.Length);
+                }
+
+                return Encoding.UTF8.GetString(buffer);
+            }
+        }
     }
 }
