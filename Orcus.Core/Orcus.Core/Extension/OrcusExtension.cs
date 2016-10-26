@@ -441,7 +441,7 @@ namespace Orcus.Core.Extension
         #endregion
     }
 
-    public static class OrcusDataTable
+    public static class OrcusDataTableExtension
     {
         public static List<T> ToList<T>(this DataTable dt)
         {
@@ -527,7 +527,7 @@ namespace Orcus.Core.Extension
         }
     }
 
-    public static class OrcusIEnumerable
+    public static class OrcusIEnumerableExtension
     {
         public static DataTable ToDataTable<T>(this IEnumerable<T> varlist)
         {
@@ -574,7 +574,7 @@ namespace Orcus.Core.Extension
         }
     }
 
-    public static class OrcusConvert
+    public static class OrcusConvertExtension
     {
         public static T ConvertTo<T>(this IConvertible value)
         {
@@ -633,7 +633,7 @@ namespace Orcus.Core.Extension
         }
     }
 
-    public static class OrcusString
+    public static class OrcusStringExtension
     {
         public static string Right(this string value, int length)
         {
