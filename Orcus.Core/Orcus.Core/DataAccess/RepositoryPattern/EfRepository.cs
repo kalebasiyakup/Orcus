@@ -35,12 +35,9 @@ namespace Orcus.Core.DataAccess.RepositoryPattern
         {
             int skipCount = index * size;
             var resetSet = filter != null ? _dbset.Where(filter).AsQueryable() : _dbset.AsQueryable();
-
-            resetSet = skipCount == 0 ? resetSet.Take(size) : resetSet.Skip(skipCount).Take(size);
-
             total = resetSet.Count();
 
-            return resetSet;
+            return skipCount == 0 ? resetSet.Take(size) : resetSet.Skip(skipCount).Take(size);
         }
         
         public virtual TEntity Insert(TEntity entity)

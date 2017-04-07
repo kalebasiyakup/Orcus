@@ -23,21 +23,15 @@ namespace Orcus.Core.DataAccess.ServicePattern
         #region Methods
         public virtual Result<TEntity> Get(Expression<Func<TEntity, bool>> filter = null)
         {
-            Result<TEntity> result = new Result<TEntity>();
+            Result<TEntity> result;
 
             try
             {
-                result.ResultObject = _repository.Get(filter);
-                result.ResultCode = (int)ResultStatusCode.OK;
-                result.ResultMessage = ResultStatusCode.OK.ToString();
-                result.setTrue();
-
+                result = new Result<TEntity>(_repository.Get(filter));
             }
             catch (Exception ex)
             {
-                result.ResultCode = (int)ResultStatusCode.InternalServerError;
-                result.ResultMessage = "Hata Oluştur => " + ex.ToString();
-                result.setFalse();
+                result = new Result<TEntity>(ex);
             }
 
             return result;
@@ -45,20 +39,14 @@ namespace Orcus.Core.DataAccess.ServicePattern
 
         public virtual Result<IEnumerable<TEntity>> GetList(Expression<Func<TEntity, bool>> filter = null)
         {
-            Result<IEnumerable<TEntity>> result = new Result<IEnumerable<TEntity>>();
+            Result<IEnumerable<TEntity>> result;
             try
             {
-                result.ResultObject = _repository.GetList(filter);
-                result.ResultCode = (int)ResultStatusCode.OK;
-                result.ResultMessage = ResultStatusCode.OK.ToString();
-                result.setTrue();
-
+                result = new Result<IEnumerable<TEntity>>(_repository.GetList(filter));
             }
             catch (Exception ex)
             {
-                result.ResultCode = (int)ResultStatusCode.InternalServerError;
-                result.ResultMessage = "Hata Oluştur => " + ex.ToString();
-                result.setFalse();
+                result = new Result<IEnumerable<TEntity>>(ex);
             }
 
             return result;
@@ -66,21 +54,16 @@ namespace Orcus.Core.DataAccess.ServicePattern
 
         public virtual Result<IEnumerable<TEntity>> GetListPaging(Expression<Func<TEntity, bool>> filter, out int total, int index = 0, int size = 15)
         {
-            Result<IEnumerable<TEntity>> result = new Result<IEnumerable<TEntity>>();
+            Result<IEnumerable<TEntity>> result;
 
             try
             {
-                result.ResultObject = _repository.GetListPaging(filter, out total, index, size);
-                result.ResultCode = (int)ResultStatusCode.OK;
-                result.ResultMessage = ResultStatusCode.OK.ToString();
-                result.setTrue();
+                result = new Result<IEnumerable<TEntity>>(_repository.GetListPaging(filter, out total, index, size));
             }
             catch (Exception ex)
             {
                 total = 0;
-                result.ResultCode = (int)ResultStatusCode.InternalServerError;
-                result.ResultMessage = "Hata Oluştur => " + ex.ToString();
-                result.setFalse();
+                result = new Result<IEnumerable<TEntity>>(ex);
             }
 
             return result;
@@ -88,21 +71,14 @@ namespace Orcus.Core.DataAccess.ServicePattern
 
         public virtual Result<TEntity> Insert(TEntity entity)
         {
-            Result<TEntity> result = new Result<TEntity>();
+            Result<TEntity> result;
             try
             {
-                result.ResultObject = _repository.Insert(entity);
-                result.ResultCode = (int)ResultStatusCode.OK;
-                result.ResultMessage = ResultStatusCode.OK.ToString();
-                result.setTrue();
-
-
+                result = new Result<TEntity>(_repository.Insert(entity));
             }
             catch (Exception ex)
             {
-                result.ResultCode = (int)ResultStatusCode.InternalServerError;
-                result.ResultMessage = "Hata Oluştur => " + ex.ToString();
-                result.setFalse();
+                result = new Result<TEntity>(ex);
             }
 
             return result;
@@ -110,20 +86,14 @@ namespace Orcus.Core.DataAccess.ServicePattern
 
         public virtual Result<TEntity> Update(TEntity entity)
         {
-            Result<TEntity> result = new Result<TEntity>();
+            Result<TEntity> result;
             try
             {
-                result.ResultObject = _repository.Update(entity);
-                result.ResultCode = (int)ResultStatusCode.OK;
-                result.ResultMessage = ResultStatusCode.OK.ToString();
-                result.setTrue();
-
+                result = new Result<TEntity>(_repository.Update(entity));
             }
             catch (Exception ex)
             {
-                result.ResultCode = (int)ResultStatusCode.InternalServerError;
-                result.ResultMessage = "Hata Oluştur => " + ex.ToString();
-                result.setFalse();
+                result = new Result<TEntity>(ex);
             }
 
             return result;
@@ -131,22 +101,15 @@ namespace Orcus.Core.DataAccess.ServicePattern
 
         public virtual Result<bool> Delete(TEntity entity)
         {
-            Result<bool> result = new Result<bool>();
+            Result<bool> result;
             try
             {
                 _repository.Delete(entity);
-                result.ResultCode = (int)ResultStatusCode.OK;
-                result.ResultMessage = ResultStatusCode.OK.ToString();
-                result.ResultObject = true;
-                result.setTrue();
-
+                result = new Result<bool>(true);
             }
             catch (Exception ex)
             {
-                result.ResultCode = (int)ResultStatusCode.InternalServerError;
-                result.ResultMessage = "Hata Oluştur => " + ex.ToString();
-                result.ResultObject = true;
-                result.setFalse();
+                result = new Result<bool>(ex);
             }
 
             return result;
@@ -154,21 +117,19 @@ namespace Orcus.Core.DataAccess.ServicePattern
 
         public virtual Result<bool> Delete(Expression<Func<TEntity, bool>> filter)
         {
-            var result = new Result<bool>();
+            Result<bool> result;
             try
             {
                 _repository.Delete(filter);
-                result.ResultCode = (int)ResultStatusCode.OK;
-                result.ResultMessage = ResultStatusCode.OK.ToString();
+                result = new Result<bool>(true);
             }
             catch (Exception ex)
             {
-                result.ResultCode = (int)ResultStatusCode.InternalServerError;
-                result.ResultMessage = "Hata Oluştu => " + ex;
+                result = new Result<bool>(ex);
             }
 
             return result;
-        } 
+        }
         #endregion
     }
 }
