@@ -1,18 +1,33 @@
 ﻿using Orcus.Core.Common;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace Orcus.Core.DataAccess.ServicePattern
 {
     public interface IService<TEntity>
     {
-        Result<TEntity> Get(Expression<Func<TEntity, bool>> filter = null);
-        Result<IEnumerable<TEntity>> GetList(Expression<Func<TEntity, bool>> filter = null);
-        Result<IEnumerable<TEntity>> GetListPaging(Expression<Func<TEntity, bool>> filter, out int total, int index = 0, int size = 15);
+        Result<IList<TEntity>> Get(Expression<Func<TEntity, bool>> filter = null, 
+            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null, 
+            int? skip = null, 
+            int? take = null,
+            params Expression<Func<TEntity, object>>[] includeProperties);
+
+        Result<IQueryable<TEntity>> Query(Expression<Func<TEntity, bool>> filter = null, 
+            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null);
+
+        Result<TEntity> GetById(object id);
+
+        Result<TEntity> GetFirstOrDefault(Expression<Func<TEntity, bool>> filter = null, 
+            params Expression<Func<TEntity, object>>[] includes);
+
         Result<TEntity> Insert(TEntity entity);
+
         Result<TEntity> Update(TEntity entity);
+
         Result<bool> Delete(TEntity entity);
+
         Result<bool> Delete(Expression<Func<TEntity, bool>> filter);
     }
 }

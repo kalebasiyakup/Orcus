@@ -57,8 +57,8 @@ namespace Orcus.Core.Test
             using (IUnitOfWork unitOfWork = new UnitOfWork(context))
             {
                 IRepository<Customers> customerRepository = unitOfWork.Repository<Customers>();
-                var retVal = customerRepository.Get();
-                Assert.IsNotNull(retVal.CompanyName);
+                var retVal = customerRepository.GetFirstOrDefault();
+                Assert.IsNotNull(retVal.Address);
             }
         }
 
@@ -98,7 +98,7 @@ namespace Orcus.Core.Test
             using (IUnitOfWork unitOfWork = new UnitOfWork(context))
             {
                 var customerService = new CustomerService(unitOfWork);
-                var result = customerService.Get();
+                var result = customerService.GetFirstOrDefault();
                 Assert.IsNotNull(result.ResultObject.CompanyName);
             }
         }
@@ -122,7 +122,7 @@ namespace Orcus.Core.Test
             using (IUnitOfWork unitOfWork = new UnitOfWork(context))
             {
                 var customerService = new CustomerService(unitOfWork);
-                var result = customerService.GetList();
+                var result = customerService.Get();
                 var retVal = result.ResultObject;
                 
                 DataTable dtResults = new DataTable();

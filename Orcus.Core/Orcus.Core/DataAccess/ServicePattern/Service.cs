@@ -3,6 +3,7 @@ using Orcus.Core.DataAccess.RepositoryPattern;
 using Orcus.Core.DataAccess.UnitOfWork;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace Orcus.Core.DataAccess.ServicePattern
@@ -21,13 +22,46 @@ namespace Orcus.Core.DataAccess.ServicePattern
         #endregion Constructor
 
         #region Methods
-        public virtual Result<TEntity> Get(Expression<Func<TEntity, bool>> filter = null)
+        public virtual Result<IList<TEntity>> Get(Expression<Func<TEntity, bool>> filter = null, 
+            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null, 
+            int? skip = null, 
+            int? take = null,
+            params Expression<Func<TEntity, object>>[] includeProperties)
         {
-            Result<TEntity> result;
-
+            Result<IList<TEntity>> result;
             try
             {
-                result = new Result<TEntity>(_repository.Get(filter));
+                result = new Result<IList<TEntity>>(_repository.Get(filter, orderBy, skip, take, includeProperties));
+            }
+            catch (Exception ex)
+            {
+                result = new Result<IList<TEntity>>(ex);
+            }
+
+            return result;
+        }
+
+        public Result<IQueryable<TEntity>> Query(Expression<Func<TEntity, bool>> filter = null, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null)
+        {
+            Result<IQueryable<TEntity>> result;
+            try
+            {
+                result = new Result<IQueryable<TEntity>>(_repository.Query(filter, orderBy));
+            }
+            catch (Exception ex)
+            {
+                result = new Result<IQueryable<TEntity>>(ex);
+            }
+
+            return result;
+        }
+
+        public Result<TEntity> GetById(object id)
+        {
+            Result<TEntity> result;
+            try
+            {
+                result = new Result<TEntity>(_repository.GetById(id));
             }
             catch (Exception ex)
             {
@@ -37,33 +71,16 @@ namespace Orcus.Core.DataAccess.ServicePattern
             return result;
         }
 
-        public virtual Result<IEnumerable<TEntity>> GetList(Expression<Func<TEntity, bool>> filter = null)
+        public Result<TEntity> GetFirstOrDefault(Expression<Func<TEntity, bool>> filter = null, params Expression<Func<TEntity, object>>[] includes)
         {
-            Result<IEnumerable<TEntity>> result;
+            Result<TEntity> result;
             try
             {
-                result = new Result<IEnumerable<TEntity>>(_repository.GetList(filter));
+                result = new Result<TEntity>(_repository.GetFirstOrDefault(filter, includes));
             }
             catch (Exception ex)
             {
-                result = new Result<IEnumerable<TEntity>>(ex);
-            }
-
-            return result;
-        }
-
-        public virtual Result<IEnumerable<TEntity>> GetListPaging(Expression<Func<TEntity, bool>> filter, out int total, int index = 0, int size = 15)
-        {
-            Result<IEnumerable<TEntity>> result;
-
-            try
-            {
-                result = new Result<IEnumerable<TEntity>>(_repository.GetListPaging(filter, out total, index, size));
-            }
-            catch (Exception ex)
-            {
-                total = 0;
-                result = new Result<IEnumerable<TEntity>>(ex);
+                result = new Result<TEntity>(ex);
             }
 
             return result;
@@ -130,6 +147,7 @@ namespace Orcus.Core.DataAccess.ServicePattern
 
             return result;
         }
+        
         #endregion
     }
 }

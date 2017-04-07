@@ -1,5 +1,6 @@
 ﻿using Orcus.Core.DataAccess.UnitOfWork;
 using System;
+using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.Validation;
 using System.Linq;
@@ -20,26 +21,80 @@ namespace Orcus.Core.DataAccess.RepositoryPattern
         }
 
         private DbSet<TEntity> _dbset => _dataContext.Set<TEntity>();
-
-        public virtual TEntity Get(Expression<Func<TEntity, bool>> filter = null)
-        {
-            return filter == null ? _dbset.FirstOrDefault() : _dbset.FirstOrDefault(filter);
-        }
-
-        public virtual IQueryable<TEntity> GetList(Expression<Func<TEntity, bool>> filter = null)
-        {
-            return filter == null ? _dbset : _dbset.Where(filter);
-        }
-
-        public IQueryable<TEntity> GetListPaging(Expression<Func<TEntity, bool>> filter, out int total, int index, int size)
-        {
-            int skipCount = index * size;
-            var resetSet = filter != null ? _dbset.Where(filter).AsQueryable() : _dbset.AsQueryable();
-            total = resetSet.Count();
-
-            return skipCount == 0 ? resetSet.Take(size) : resetSet.Skip(skipCount).Take(size);
-        }
         
+        public IList<TEntity> Get(Expression<Func<TEntity, bool>> filter = null, 
+            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
+            int? skip = null,
+            int? take = null,
+            params Expression<Func<TEntity, object>>[] includeProperties)
+        {
+            return GetQueryable(filter, orderBy, skip, take, includeProperties);
+        }
+
+        public virtual IQueryable<TEntity> Query(Expression<Func<TEntity, bool>> filter = null, 
+            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null)
+        {
+            IQueryable<TEntity> query = _dbset;
+
+            if (filter != null)
+                query = query.Where(filter);
+
+            if (orderBy != null)
+                query = orderBy(query);
+
+            return query;
+        }
+
+        public virtual TEntity GetById(object id)
+        {
+            return _dbset.Find(id);
+        }
+
+        public virtual TEntity GetFirstOrDefault(Expression<Func<TEntity, bool>> filter = null, 
+            params Expression<Func<TEntity, object>>[] includes)
+        {
+            IQueryable<TEntity> query = _dbset;
+
+            foreach (Expression<Func<TEntity, object>> include in includes)
+                query = query.Include(include);
+
+            return query.FirstOrDefault(filter);
+        }
+
+        protected virtual IList<TEntity> GetQueryable(Expression<Func<TEntity, bool>> filter = null,
+            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
+            int? skip = null,
+            int? take = null,
+            params Expression<Func<TEntity, object>>[] includeProperties)
+        {
+            IQueryable<TEntity> query = _dbset;
+
+            foreach (Expression<Func<TEntity, object>> include in includeProperties)
+                query = query.Include(include);
+
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+
+            if (orderBy != null)
+            {
+                query = orderBy(query);
+            }
+
+            if (skip.HasValue)
+            {
+                query = query.Skip(skip.Value);
+            }
+
+            if (take.HasValue)
+            {
+                query = query.Take(take.Value);
+            }
+
+            return query.ToList();
+        }
+
         public virtual TEntity Insert(TEntity entity)
         {
             try
@@ -75,7 +130,7 @@ namespace Orcus.Core.DataAccess.RepositoryPattern
                 throw GetDbEntityValidationExceptionError(dbEx, "Update(T entity)");
             }
         }
-        
+
         public virtual void Delete(TEntity entity)
         {
             try
@@ -98,7 +153,7 @@ namespace Orcus.Core.DataAccess.RepositoryPattern
 
         public virtual void Delete(Expression<Func<TEntity, bool>> filter)
         {
-            TEntity entity = Get(filter);
+            TEntity entity = GetFirstOrDefault(filter);
             if (entity != null)
             {
                 try
@@ -120,7 +175,7 @@ namespace Orcus.Core.DataAccess.RepositoryPattern
         {
             return _dbset.SqlQuery(query, parameters).AsQueryable();
         }
-       
+
         public IRepository<T> GetRepository<T>() where T : class
         {
             return _unitOfWork.Repository<T>();
