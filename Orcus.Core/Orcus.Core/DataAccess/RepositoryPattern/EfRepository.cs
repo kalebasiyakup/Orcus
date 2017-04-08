@@ -21,7 +21,15 @@ namespace Orcus.Core.DataAccess.RepositoryPattern
         }
 
         private DbSet<TEntity> _dbset => _dataContext.Set<TEntity>();
-        
+
+        public IList<TEntity> GetAll(Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
+            int? skip = null,
+            int? take = null,
+            params Expression<Func<TEntity, object>>[] includeProperties)
+        {
+            return GetQueryable(null, orderBy, skip, take, includeProperties);
+        }
+
         public IList<TEntity> Get(Expression<Func<TEntity, bool>> filter = null, 
             Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
             int? skip = null,
@@ -59,6 +67,16 @@ namespace Orcus.Core.DataAccess.RepositoryPattern
                 query = query.Include(include);
 
             return query.FirstOrDefault(filter);
+        }
+
+        public virtual int GetCount(Expression<Func<TEntity, bool>> filter = null)
+        {
+            return GetQueryable(filter).Count();
+        }
+
+        public virtual bool GetExists(Expression<Func<TEntity, bool>> filter = null)
+        {
+            return GetQueryable(filter).Any();
         }
 
         protected virtual IList<TEntity> GetQueryable(Expression<Func<TEntity, bool>> filter = null,
@@ -131,6 +149,27 @@ namespace Orcus.Core.DataAccess.RepositoryPattern
             }
         }
 
+        public virtual void Delete(object id)
+        {
+            try
+            {
+                TEntity entity = _dbset.Find(id);
+
+                if (entity == null)
+                {
+                    throw GetDbEntityValidationExceptionError(null, "Delete(T entity) - entity is null");
+                }
+
+                if (_dataContext.Entry(entity).State == EntityState.Detached)
+                    _dbset.Attach(entity);
+                _dbset.Remove(entity);
+            }
+            catch (DbEntityValidationException dbEx)
+            {
+                throw GetDbEntityValidationExceptionError(dbEx, "Delete(T entity)");
+            }
+        }
+
         public virtual void Delete(TEntity entity)
         {
             try
@@ -162,7 +201,6 @@ namespace Orcus.Core.DataAccess.RepositoryPattern
                     if (entry.State == EntityState.Detached)
                         _dbset.Attach(entity);
                     _dbset.Remove(entity);
-
                 }
                 catch (DbEntityValidationException dbEx)
                 {
@@ -170,22 +208,12 @@ namespace Orcus.Core.DataAccess.RepositoryPattern
                 }
             }
         }
-
-        public virtual IQueryable<TEntity> SelectQuery(string query, params object[] parameters)
-        {
-            return _dbset.SqlQuery(query, parameters).AsQueryable();
-        }
-
+        
         public IRepository<T> GetRepository<T>() where T : class
         {
             return _unitOfWork.Repository<T>();
         }
-
-        public IQueryable<TEntity> Queryable()
-        {
-            return _dbset;
-        }
-
+        
         private Exception GetDbEntityValidationExceptionError(DbEntityValidationException dbEx, string methodName)
         {
             Exception exception = new Exception(methodName);

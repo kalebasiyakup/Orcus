@@ -8,10 +8,7 @@ namespace Orcus.Core.Test.Repository
     {
         public static IEnumerable<Customers> CustomersByCompany(this IRepository<Customers> repository, string companyName)
         {
-            return repository
-                .Queryable()
-                .Where(x => x.CompanyName.Contains(companyName))
-                .AsEnumerable();
+            return repository.Get(f => f.ContactName.Contains(companyName)).AsEnumerable();
         }
     }
 }

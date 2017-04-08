@@ -22,6 +22,24 @@ namespace Orcus.Core.DataAccess.ServicePattern
         #endregion Constructor
 
         #region Methods
+        public virtual Result<IList<TEntity>> GetAll(Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
+            int? skip = null,
+            int? take = null,
+            params Expression<Func<TEntity, object>>[] includeProperties)
+        {
+            Result<IList<TEntity>> result;
+            try
+            {
+                result = new Result<IList<TEntity>>(_repository.GetAll(orderBy, skip, take, includeProperties));
+            }
+            catch (Exception ex)
+            {
+                result = new Result<IList<TEntity>>(ex);
+            }
+
+            return result;
+        }
+
         public virtual Result<IList<TEntity>> Get(Expression<Func<TEntity, bool>> filter = null, 
             Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null, 
             int? skip = null, 
@@ -116,6 +134,22 @@ namespace Orcus.Core.DataAccess.ServicePattern
             return result;
         }
 
+        public virtual Result<bool> Delete(object id)
+        {
+            Result<bool> result;
+            try
+            {
+                _repository.Delete(id);
+                result = new Result<bool>(true);
+            }
+            catch (Exception ex)
+            {
+                result = new Result<bool>(ex);
+            }
+
+            return result;
+        }
+
         public virtual Result<bool> Delete(TEntity entity)
         {
             Result<bool> result;
@@ -147,7 +181,37 @@ namespace Orcus.Core.DataAccess.ServicePattern
 
             return result;
         }
-        
+
+        public Result<int> GetCount(Expression<Func<TEntity, bool>> filter = null)
+        {
+            Result<int> result;
+            try
+            {
+                result = new Result<int>(_repository.GetCount(filter));
+            }
+            catch (Exception ex)
+            {
+                result = new Result<int>(ex);
+            }
+
+            return result;
+        }
+
+        public Result<bool> GetExists(Expression<Func<TEntity, bool>> filter = null)
+        {
+            Result<bool> result;
+            try
+            {
+                result = new Result<bool>(_repository.GetExists(filter));
+            }
+            catch (Exception ex)
+            {
+                result = new Result<bool>(ex);
+            }
+
+            return result;
+        }
+
         #endregion
     }
 }

@@ -8,6 +8,11 @@ namespace Orcus.Core.DataAccess.ServicePattern
 {
     public interface IService<TEntity>
     {
+        Result<IList<TEntity>> GetAll(Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
+            int? skip = null,
+            int? take = null,
+            params Expression<Func<TEntity, object>>[] includeProperties);
+
         Result<IList<TEntity>> Get(Expression<Func<TEntity, bool>> filter = null, 
             Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null, 
             int? skip = null, 
@@ -26,8 +31,14 @@ namespace Orcus.Core.DataAccess.ServicePattern
 
         Result<TEntity> Update(TEntity entity);
 
+        Result<bool> Delete(object id);
+
         Result<bool> Delete(TEntity entity);
 
         Result<bool> Delete(Expression<Func<TEntity, bool>> filter);
+
+        Result<int> GetCount(Expression<Func<TEntity, bool>> filter = null);
+
+        Result<bool> GetExists(Expression<Func<TEntity, bool>> filter = null);
     }
 }

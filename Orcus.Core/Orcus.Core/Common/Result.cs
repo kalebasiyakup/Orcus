@@ -7,14 +7,14 @@ namespace Orcus.Core.Common
     public class Result
     {
         public bool ResultStatus { get; set; }
-        public int ResultCode { get; set; }
+        public ResultStatusCode ResultCode { get; set; }
         public string ResultMessage { get; set; }
         public Exception Exception { get; set; }
         public bool HasError { get; set; }
 
         public Result()
         {
-            ResultCode = (int)ResultStatusCode.OK;
+            ResultCode = ResultStatusCode.OK;
             ResultMessage = ResultStatusCode.OK.ToString();
             this.ResultStatus = true;
             this.HasError = false;
@@ -22,7 +22,7 @@ namespace Orcus.Core.Common
 
         public Result(string message, bool hasError)
         {
-            this.ResultCode = (int)ResultStatusCode.InternalServerError;
+            this.ResultCode = ResultStatusCode.InternalServerError;
             this.ResultMessage = message;
             this.ResultStatus = hasError;
             this.HasError = hasError;
@@ -41,7 +41,7 @@ namespace Orcus.Core.Common
                 iteration = iteration.InnerException;
             }
 
-            this.ResultCode = (int)ResultStatusCode.InternalServerError;
+            this.ResultCode = ResultStatusCode.InternalServerError;
             this.ResultMessage = builder.ToString();
             this.ResultStatus = false;
             this.HasError = true;

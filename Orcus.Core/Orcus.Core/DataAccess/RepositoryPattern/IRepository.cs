@@ -9,6 +9,11 @@ namespace Orcus.Core.DataAccess.RepositoryPattern
     {
         IRepository<T> GetRepository<T>() where T : class;
 
+        IList<TEntity> GetAll(Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
+            int? skip = null,
+            int? take = null,
+            params Expression<Func<TEntity, object>>[] includeProperties);
+
         IList<TEntity> Get(Expression<Func<TEntity, bool>> filter = null,
             Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null, 
             int? skip = null, 
@@ -27,12 +32,14 @@ namespace Orcus.Core.DataAccess.RepositoryPattern
 
         TEntity Update(TEntity entity);
 
+        void Delete(object id);
+
         void Delete(TEntity entity);
 
         void Delete(Expression<Func<TEntity, bool>> filter);
 
-        IQueryable<TEntity> SelectQuery(string query, params object[] parameters);
+        int GetCount(Expression<Func<TEntity, bool>> filter = null);
 
-        IQueryable<TEntity> Queryable();
+        bool GetExists(Expression<Func<TEntity, bool>> filter = null);
     }
 } 
