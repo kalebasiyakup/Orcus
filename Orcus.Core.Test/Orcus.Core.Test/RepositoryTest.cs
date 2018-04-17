@@ -129,7 +129,7 @@ namespace Orcus.Core.Test
                 dtResults = retVal.ToDataTable();
 
                 Assert.IsNotNull(retVal.IsNullOrEmpty());
-                dtResults.ToCSV(",", true, @"C:\_Projeler.Net","deneme");
+                dtResults.ToCsv(",", true, @"C:\_Projeler.Net","deneme");
 
                 var dtList = dtResults.ToList<Customers>();
                 var str = "Yakup KALEBAŞI";

@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Orcus.Core.Extension
 {
@@ -46,7 +43,7 @@ namespace Orcus.Core.Extension
         public static string CompressString(this string text)
         {
             byte[] buffer = Encoding.UTF8.GetBytes(text);
-            var memoryStream = new System.IO.MemoryStream();
+            var memoryStream = new MemoryStream();
             using (var gZipStream = new GZipStream(memoryStream, CompressionMode.Compress, true))
             {
                 gZipStream.Write(buffer, 0, buffer.Length);

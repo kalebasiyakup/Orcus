@@ -8,8 +8,8 @@ namespace Orcus.Core.Extension
         {
             try
             {
-                Type t = typeof(T);
-                Type u = Nullable.GetUnderlyingType(t);
+                var t = typeof(T);
+                var u = Nullable.GetUnderlyingType(t);
 
                 if (u != null)
                 {
@@ -18,13 +18,10 @@ namespace Orcus.Core.Extension
 
                     return (T)Convert.ChangeType(value, u);
                 }
-                else
-                {
-                    if (value == null || value.Equals(""))
-                        return default(T);
+                if (value == null || value.Equals(""))
+                    return default(T);
 
-                    return (T)Convert.ChangeType(value, t);
-                }
+                return (T)Convert.ChangeType(value, t);
             }
             catch
             {
@@ -36,8 +33,8 @@ namespace Orcus.Core.Extension
         {
             try
             {
-                Type t = typeof(T);
-                Type u = Nullable.GetUnderlyingType(t);
+                var t = typeof(T);
+                var u = Nullable.GetUnderlyingType(t);
 
                 if (u != null)
                 {
@@ -46,13 +43,10 @@ namespace Orcus.Core.Extension
 
                     return (T)Convert.ChangeType(value, u);
                 }
-                else
-                {
-                    if (value == null || value.Equals(""))
-                        return (T)(ifError.ConvertTo<T>());
+                if (value == null || value.Equals(""))
+                    return ifError.ConvertTo<T>();
 
-                    return (T)Convert.ChangeType(value, t);
-                }
+                return (T)Convert.ChangeType(value, t);
             }
             catch
             {

@@ -15,26 +15,23 @@ namespace Orcus.Core.Extension
         #region GetExceptionFormatToHtml
         public static string GetExceptionFormatToHtml(this Exception ex)
         {
-            StringBuilder stringBuilder = new StringBuilder(2048);
+            var stringBuilder = new StringBuilder(2048);
 
             #region HtmlBase
             stringBuilder.Append("<table border=\"1\" cellpadding=\"1\" cellspacing=\"0\" style=\"text-align:left;width:800px;font-family:Tahoma;font-size: 12px;color:#000000;font-weight:normal;\">");
             stringBuilder.Append(HtmlMessageFormatRow("Source", ex.Source));
             stringBuilder.Append(HtmlMessageFormatRow("Message", ex.Message));
             stringBuilder.Append(HtmlMessageFormatRow("StackTrace", ex.StackTrace));
-            stringBuilder.Append(HtmlMessageFormatRow("InnerException Message", ex.InnerException.Message));
+            if (ex.InnerException != null)
+                stringBuilder.Append(HtmlMessageFormatRow("InnerException Message", ex.InnerException.Message));
+
             #endregion
 
             #region ExceptionData
-            if (ex?.Data == null)
-            {
-                stringBuilder.Append("</table>");
-                return stringBuilder.ToString();
-            }
 
-            foreach (DictionaryEntry pair in from DictionaryEntry pair in ex.Data
-                                             where pair.Key.ToString().Contains("SQLCOMMANDERROR")
-                                             select pair)
+            foreach (var pair in from DictionaryEntry pair in ex.Data
+                                 where pair.Key.ToString().Contains("SQLCOMMANDERROR")
+                                 select pair)
             {
                 stringBuilder.Append(pair.Value);
             }
@@ -54,11 +51,11 @@ namespace Orcus.Core.Extension
 
             stringBuilder.Append("<table border=\"1\" cellpadding=\"1\" cellspacing=\"0\" style=\"text-align:left;width:680px;font-family:Tahoma;font-size: 12px;color:#000000;font-weight:normal;\">");
 
-            bool rowGri = false;
-            foreach (DictionaryEntry pair in from DictionaryEntry pair in ex.Data
-                                             where !pair.Key.ToString().Contains("SQLCOMMANDERROR")
-                                             where !pair.Key.ToString().Contains("HelpLink.")
-                                             select pair)
+            var rowGri = false;
+            foreach (var pair in from DictionaryEntry pair in ex.Data
+                                 where !pair.Key.ToString().Contains("SQLCOMMANDERROR")
+                                 where !pair.Key.ToString().Contains("HelpLink.")
+                                 select pair)
             {
                 stringBuilder.Append(HtmlMessageFormatColorRow(pair.Key.ToString(), pair.Value.ToString(), rowGri));
                 rowGri = !rowGri;
@@ -75,7 +72,7 @@ namespace Orcus.Core.Extension
 
         private static string HtmlMessageFormatRow(string key, string value)
         {
-            StringBuilder stringBuilder = new StringBuilder();
+            var stringBuilder = new StringBuilder();
             stringBuilder.Append("<tr>");
             stringBuilder.Append(string.Concat("<td valign=\"top\" width=\"109px\"><b><i>", key, "</i></b></td>"));
             stringBuilder.Append(string.Concat("<td>", value, "</td>"));
@@ -85,11 +82,7 @@ namespace Orcus.Core.Extension
 
         private static string HtmlMessageFormatColorRow(string a, string b, bool rowGri = false)
         {
-            if (!rowGri)
-            {
-                return string.Format("<tr><td>{0} = {1}</td></tr>", a, b);
-            }
-            return string.Format("<tr style=\"background - color: #e9e9e9;\"><td>{0} = {1}</td></tr>", a, b);
+            return string.Format(!rowGri ? "<tr><td>{0} = {1}</td></tr>" : "<tr style=\"background - color: #e9e9e9;\"><td>{0} = {1}</td></tr>", a, b);
         }
 
         #endregion
@@ -102,7 +95,7 @@ namespace Orcus.Core.Extension
                 return string.Empty;
             }
 
-            StringBuilder stringBuilder = new StringBuilder();
+            var stringBuilder = new StringBuilder();
             stringBuilder.Append("<table border=\"1\" cellpadding=\"1\" cellspacing=\"0\" style=\"text-align:left;width:800px;font-family:Tahoma;font-size: 12px;color:#000000;font-weight:normal;\">");
 
             stringBuilder.Append("<tr>");
@@ -143,7 +136,7 @@ namespace Orcus.Core.Extension
                 return string.Empty;
             }
 
-            StringBuilder stringBuilder = new StringBuilder();
+            var stringBuilder = new StringBuilder();
             stringBuilder.Append("<table border=\"1\" cellpadding=\"1\" cellspacing=\"0\" style=\"text-align:left;width:800px;font-family:Tahoma;font-size: 12px;color:#000000;font-weight:normal;\">");
 
             stringBuilder.Append("<tr>");
@@ -174,7 +167,7 @@ namespace Orcus.Core.Extension
                 return string.Empty;
             }
 
-            StringBuilder stringBuilder = new StringBuilder();
+            var stringBuilder = new StringBuilder();
 
             stringBuilder.Append("<table border=\"1\" cellpadding=\"1\" cellspacing=\"0\" style=\"text-align:left;width:800px;font-family:Tahoma;font-size: 12px;color:#000000;font-weight:normal;\">");
 
@@ -219,26 +212,26 @@ namespace Orcus.Core.Extension
 
         #region HtmlTableToDataTable
 
-        private const RegexOptions ExpressionOptions = RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.IgnoreCase;
-
-        private const string CommentPattern = "<!--(.*?)-->";
-        private const string TablePattern = "<table[^>]*>(.*?)</table>";
-        private const string HeaderPattern = "<th[^>]*>(.*?)</th>";
-        private const string RowPattern = "<tr[^>]*>(.*?)</tr>";
-        private const string CellPattern = "<td[^>]*>(.*?)</td>";
-
         public static DataTable HtmlTableToDataTable(this string html)
         {
             return ParseTable(html);
         }
 
+        private const RegexOptions ExpressionOptions = RegexOptions.Singleline | RegexOptions.Multiline | RegexOptions.IgnoreCase;
+
+        private const string CommentPattern = "<!--(.*?)-->";
+        //private const string TablePattern = "<table[^>]*>(.*?)</table>";
+        private const string HeaderPattern = "<th[^>]*>(.*?)</th>";
+        private const string RowPattern = "<tr[^>]*>(.*?)</tr>";
+        private const string CellPattern = "<td[^>]*>(.*?)</td>";
+        
         private static DataTable ParseTable(string tableHtml)
         {
-            string tableHtmlWithoutComments = WithoutComments(tableHtml);
+            var tableHtmlWithoutComments = WithoutComments(tableHtml);
 
-            DataTable dataTable = new DataTable();
+            var dataTable = new DataTable();
 
-            MatchCollection rowMatches = Regex.Matches(tableHtmlWithoutComments, RowPattern, ExpressionOptions);
+            var rowMatches = Regex.Matches(tableHtmlWithoutComments, RowPattern, ExpressionOptions);
 
             dataTable.Columns.AddRange(tableHtmlWithoutComments.Contains("<th") ? ParseColumns(tableHtml) : GenerateColumns(rowMatches));
 
@@ -254,7 +247,7 @@ namespace Orcus.Core.Extension
 
         private static DataColumn[] ParseColumns(string tableHtml)
         {
-            MatchCollection headerMatches = Regex.Matches(tableHtml.Replace("<thead>", "").Replace("</thead>", ""), HeaderPattern, ExpressionOptions);
+            var headerMatches = Regex.Matches(tableHtml.Replace("<thead>", "").Replace("</thead>", ""), HeaderPattern, ExpressionOptions);
 
             return (from Match headerMatch in headerMatches
                     select new DataColumn(headerMatch.Groups[1].ToString())).ToArray();
@@ -262,33 +255,29 @@ namespace Orcus.Core.Extension
 
         private static DataColumn[] GenerateColumns(MatchCollection rowMatches)
         {
-            int columnCount = Regex.Matches(rowMatches[0].ToString(), CellPattern, ExpressionOptions).Count;
+            var columnCount = Regex.Matches(rowMatches[0].ToString(), CellPattern, ExpressionOptions).Count;
 
             return (from index in Enumerable.Range(0, columnCount)
                     select new DataColumn("Column " + Convert.ToString(index))).ToArray();
         }
 
-        private static void ParseRows(MatchCollection rowMatches, DataTable dataTable)
+        private static void ParseRows(IEnumerable rowMatches, DataTable dataTable)
         {
             foreach (Match rowMatch in rowMatches)
             {
                 // if the row contains header tags don't use it - it is a header not a row
-                if (!rowMatch.Value.Contains("<th"))
-                {
-                    DataRow dataRow = dataTable.NewRow();
+                if (rowMatch.Value.Contains("<th")) continue;
+                var dataRow = dataTable.NewRow();
 
-                    MatchCollection cellMatches = Regex.Matches(
-                        rowMatch.Value,
-                        CellPattern,
-                        ExpressionOptions);
+                var cellMatches = Regex.Matches(
+                    rowMatch.Value,
+                    CellPattern,
+                    ExpressionOptions);
 
-                    for (int columnIndex = 0; columnIndex < cellMatches.Count; columnIndex++)
-                    {
-                        dataRow[columnIndex] = cellMatches[columnIndex].Groups[1].ToString();
-                    }
+                for (var columnIndex = 0; columnIndex < cellMatches.Count; columnIndex++)
+                    dataRow[columnIndex] = cellMatches[columnIndex].Groups[1].ToString();
 
-                    dataTable.Rows.Add(dataRow);
-                }
+                dataTable.Rows.Add(dataRow);
             }
         }
 

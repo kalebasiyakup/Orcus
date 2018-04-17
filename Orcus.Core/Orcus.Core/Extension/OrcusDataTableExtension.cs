@@ -15,31 +15,24 @@ namespace Orcus.Core.Extension
             List<T> ts;
             if (dt != null)
             {
-                PropertyInfo[] properties = typeof(T).GetProperties();
-                Dictionary<string, PropertyInfo> strs = new Dictionary<string, PropertyInfo>();
-                PropertyInfo[] propertyInfoArray = properties;
-                for (int i = 0; i < (int)propertyInfoArray.Length; i++)
+                var properties = typeof(T).GetProperties();
+                var strs = new Dictionary<string, PropertyInfo>();
+                var propertyInfoArray = properties;
+                foreach (var propertyInfo in propertyInfoArray)
                 {
-                    PropertyInfo propertyInfo = propertyInfoArray[i];
-                    if ((dt.Columns[propertyInfo.Name] == null ? false : !strs.Keys.Contains<string>(propertyInfo.Name)))
-                    {
+                    if (dt.Columns[propertyInfo.Name] != null && !strs.Keys.Contains(propertyInfo.Name))
                         strs.Add(propertyInfo.Name, propertyInfo);
-                    }
                 }
-                List<T> ts1 = new List<T>();
+                var ts1 = new List<T>();
                 foreach (DataRow row in dt.Rows)
                 {
-                    T t = Activator.CreateInstance<T>();
-                    foreach (KeyValuePair<string, PropertyInfo> str in strs)
+                    var t = Activator.CreateInstance<T>();
+                    foreach (var str in strs)
                     {
                         if (!(row[str.Key] is DBNull))
-                        {
                             str.Value.SetValue(t, row[str.Key]);
-                        }
                         else
-                        {
                             str.Value.SetValue(t, null);
-                        }
                     }
                     ts1.Add(t);
                 }
@@ -52,9 +45,9 @@ namespace Orcus.Core.Extension
             return ts;
         }
 
-        public static void ToCSV(this DataTable table, string delimiter, bool includeHeader, string savePath = @"c:\", string fileName = "export")
+        public static void ToCsv(this DataTable table, string delimiter, bool includeHeader, string savePath = @"c:\", string fileName = "export")
         {
-            StringBuilder result = new StringBuilder();
+            var result = new StringBuilder();
 
             if (includeHeader)
             {
@@ -69,13 +62,13 @@ namespace Orcus.Core.Extension
 
             foreach (DataRow row in table.Rows)
             {
-                foreach (object item in row.ItemArray)
+                foreach (var item in row.ItemArray)
                 {
-                    if (item is System.DBNull)
+                    if (item is DBNull)
                         result.Append(delimiter);
                     else
                     {
-                        string itemAsString = item.ToString();
+                        var itemAsString = item.ToString();
                         itemAsString = itemAsString.Replace("\"", "\"\"");
                         itemAsString = "\"" + itemAsString + "\"";
                         result.Append(itemAsString + delimiter);
@@ -87,7 +80,7 @@ namespace Orcus.Core.Extension
                 result.Append(Environment.NewLine);
             }
 
-            using (StreamWriter writer = new StreamWriter(string.Concat(savePath, savePath.Right(1) == @"\" ? "" : @"\", fileName, ".csv"), true))
+            using (var writer = new StreamWriter(string.Concat(savePath, savePath.Right(1) == @"\" ? "" : @"\", fileName, ".csv"), true))
             {
                 writer.Write(result.ToString());
             }
